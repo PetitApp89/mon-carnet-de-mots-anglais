@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b4a9b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Carnet de Mots">
+<title>Mon Carnet de Mots Anglais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --paper: #fbfcff;
+    --paper-2: #f0f4fc;
+    --rule: #cfdaf0;
+    --ink: #1f3a8a;
+    --ink-soft: #4a5d92;
+    --margin: #d4474f;
+    --french: #9b1c3a;
+    --accent: #2b4a9b;
+    --accent-text: #ffffff;
+    --danger: #b3261e;
+    --ok: #2e7d32;
+    --focus: #e08a00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12172a;
+      --paper-2: #1a2140;
+      --rule: #2b3560;
+      --ink: #cfdcff;
+      --ink-soft: #93a3d6;
+      --margin: #e0626a;
+      --french: #ff9fb3;
+      --accent: #8fa8ff;
+      --accent-text: #0e1430;
+      --danger: #ff8a80;
+    --ok: #7bd88f;
+      --focus: #ffc04d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12172a;
+    --paper-2: #1a2140;
+    --rule: #2b3560;
+    --ink: #cfdcff;
+    --ink-soft: #93a3d6;
+    --margin: #e0626a;
+    --french: #ff9fb3;
+    --accent: #8fa8ff;
+    --accent-text: #0e1430;
+    --danger: #ff8a80;
+    --ok: #7bd88f;
+    --focus: #ffc04d;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Atkinson Hyperlegible", "Segoe UI", Verdana, system-ui, sans-serif;
+    font-size: 1.1875rem;   /* 19px at the default size; follows the Text size setting */
+    line-height: 1.4;
+    /* Seyès-style ruled paper */
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0, transparent 35px,
+      var(--rule) 35px, var(--rule) 36px
+    );
+  }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px 48px 28px;
+    border-left: 2px solid var(--margin);
+    margin-left: max(12px, calc((100% - 640px) / 2));
+    min-height: 100vh;
+    background: linear-gradient(to right, color-mix(in srgb, var(--paper) 88%, transparent), transparent 40%);
+  }
+  @media (max-width: 700px) { .page { margin-left: 14px; } }
+
+  h1 {
+    font-size: clamp(22px, 6.8vw, 32px);   /* fixed, so the Text size setting never pushes the title into the buttons */
+    white-space: nowrap;
+    line-height: 1.15;
+    margin: 4px 0 2px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .sub { margin: 0 0 18px; color: var(--ink-soft); font-size: 1rem; }
+
+  .card {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .field { display: block; margin-bottom: 10px; }
+  .field > span { display: block; font-size: 0.95rem; color: var(--ink-soft); margin-bottom: 3px; }
+  .field > span small { opacity: .85; }
+  input[type="text"], input[type="search"], select {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 1.1rem;
+    background: var(--paper);
+    border: 2px solid var(--rule);
+    border-radius: 10px;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  .en-input { font-weight: 700; color: var(--ink); }
+  .fr-input { color: var(--french); }
+
+  .btn {
+    cursor: pointer;
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-text);
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-weight: 700;
+    min-height: 48px;
+  }
+  .btn.ghost { background: transparent; color: var(--accent); }
+  .btn.small { padding: 6px 12px; min-height: 40px; font-size: 0.95rem; }
+  .btn.danger { border-color: var(--danger); color: var(--danger); background: transparent; }
+  .btn.dangerfill { border-color: var(--danger); background: var(--danger); color: var(--paper); }
+  .btn.full { width: 100%; }
+
+  .msg { min-height: 1.4em; margin: 8px 0 0; font-size: 1rem; color: var(--ink-soft); }
+  .msg.err { color: var(--danger); font-weight: 700; }
+  .msg.warn { color: var(--french); font-weight: 700; }
+  .dupact { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .dupact[hidden] { display: none; }
+  .dupact .btn { flex: 1 1 auto; }
+
+  .tools { display: grid; gap: 10px; margin-bottom: 8px; }
+  .toolrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .toolrow > * { flex: 1 1 auto; }
+  .check {
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+    padding: 6px 2px; min-height: 44px; flex: 1 1 100%;
+  }
+  .check input { width: 24px; height: 24px; accent-color: var(--accent); flex: none; }
+
+  .count { margin: 10px 0 6px; font-weight: 700; color: var(--ink-soft); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 4px; }
+  .chip { cursor: pointer; border: 2px solid var(--rule); background: var(--paper); color: var(--accent); border-radius: 999px; padding: 6px 14px; min-height: 44px; font-weight: 700; }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+
+  ul.words { list-style: none; margin: 0; padding: 0; background: var(--paper); }
+  .word {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 10px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .word .en { font-size: 1.35rem; font-weight: 700; word-break: break-word; }
+  .word .fr { font-size: 1.15rem; color: var(--french); word-break: break-word; }
+  .word .fr.hidden {
+    background: var(--paper-2);
+    border: 2px dashed var(--rule);
+    color: var(--ink-soft);
+    border-radius: 8px;
+    padding: 2px 10px;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  .word .actions { display: flex; gap: 6px; align-items: center; }
+  .iconbtn {
+    cursor: pointer;
+    background: var(--paper);
+    border: 2px solid var(--rule);
+    color: var(--accent);
+    border-radius: 10px;
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+  }
+  .iconbtn:hover { border-color: var(--accent); }
+  .iconbtn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  a.iconbtn { text-decoration: none; }
+  .word { align-items: start; }
+  .word > div:first-child { min-width: 0; }
+  .word .actions { align-items: start; }
+  @media (max-width: 480px) {
+    .page { padding: 20px 10px 48px 16px; }
+    .word { gap: 6px 8px; }
+    .word .actions { gap: 4px; }
+    .iconbtn { width: 40px; height: 40px; }
+    .iconbtn svg { width: 20px; height: 20px; }
+  }
+  /* Very narrow phones: the four buttons sit in a 2 x 2 block, still on the right. */
+  @media (max-width: 350px) {
+    .word .actions { display: grid; grid-template-columns: 40px 40px; }
+  }
+  .word .more { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .editgrid { grid-column: 1 / -1; display: grid; gap: 8px; }
+  .confirm { color: var(--danger); font-weight: 700; }
+
+  .empty {
+    padding: 22px 6px;
+    color: var(--ink-soft);
+    font-size: 1.1rem;
+  }
+  .backup { margin-top: 26px; }
+  .backup textarea {
+    width: 100%; min-height: 110px; margin-top: 8px;
+    background: var(--paper); color: var(--ink);
+    border: 2px solid var(--rule); border-radius: 10px; padding: 10px; font: inherit; font-size: 1rem;
+  }
+  details > summary { cursor: pointer; font-weight: 700; padding: 8px 0; min-height: 44px; color: var(--accent); }
+
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .topbtns { display: flex; gap: 10px; margin-bottom: 16px; }
+  .topbtns .btn { flex: 1 1 0; min-height: 54px; padding: 8px 10px; line-height: 1.2; }
+  .card[hidden] { display: none; }
+  .field textarea, .editgrid textarea { color: var(--ink); font-family: inherit; width: 100%; padding: 11px 12px; font-size: 1.1rem; background: var(--paper); border: 2px solid var(--rule); border-radius: 10px; resize: vertical; min-height: 72px; line-height: 1.35; }
+  .field textarea:focus, .editgrid textarea:focus { border-color: var(--accent); }
+  .word { content-visibility: auto; contain-intrinsic-size: auto 64px; }
+  ul.words > li.word { grid-template-columns: minmax(0, 1fr) auto; row-gap: 0; align-items: start; }
+  .word .main { min-width: 0; cursor: pointer; border-radius: 8px; }
+  .word .main:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+  ul.words > li.word > .speak { align-self: start; width: 44px; height: 44px; margin: -9px 0; }
+  ul.words > li.word > .panel { grid-column: 1 / -1; }
+  .field[hidden] { display: none; }
+  .catbtn { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; padding: 11px 12px; text-align: left; cursor: pointer; font-size: 1.1rem; background: var(--paper); color: var(--ink); border: 2px solid var(--rule); border-radius: 10px; }
+  .catbtn::after { content: ""; flex: none; width: 9px; height: 9px; border-right: 2px solid var(--ink-soft); border-bottom: 2px solid var(--ink-soft); transform: rotate(45deg) translateY(-3px); }
+  .catrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; width: 100%; padding: 8px 10px; text-align: left; cursor: pointer; background: var(--paper); border: 2px dashed var(--rule); border-radius: 10px; }
+  .catrow .tag { font-size: 0.9rem; padding: 2px 10px; border-radius: 999px; background: var(--paper-2); border: 1px solid var(--rule); color: var(--ink); }
+  .catrow .tagnone { font-size: 0.95rem; color: var(--ink-soft); }
+  .catrow .taghint { margin-left: auto; color: var(--accent); font-weight: 700; font-size: 0.9rem; }
+  .sheet-word { font-size: 1.35rem; font-weight: 700; }
+  .sheet-grid { gap: 6px; }
+  .sheet-grid .chip { min-height: 30px; padding: 3px 10px; font-size: 0.85rem; line-height: 1.2; }
+  .sheet { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, 0.5); display: flex; align-items: flex-end; justify-content: center; }
+  .sheet[hidden] { display: none; }
+  .sheet-box { width: 100%; max-width: 560px; max-height: 82vh; overflow-y: auto; background: var(--paper); border: 2px solid var(--ink); border-bottom: 0; border-radius: 18px 18px 0 0; padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  .sheet-box h3 { margin: 0 0 4px; font-size: 1.1rem; color: var(--ink-soft); font-weight: 400; }
+  .sheet-word { margin-bottom: 12px; word-break: break-word; }
+  .sheet-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .sheet-box input[type="text"] { flex: 1 1 100%; }
+  .word.open { background: var(--paper-2); box-shadow: -8px 0 0 var(--paper-2), 8px 0 0 var(--paper-2); }
+  .noteicon { display: inline-block; width: 18px; height: 18px; margin-left: 8px; vertical-align: middle; color: var(--accent); }
+  .noteicon::before, .speak::before { content: ""; display: block; width: 100%; height: 100%; background: currentColor; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain; }
+  .noteicon::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h9l4 4v14H6z'/%3E%3Cpath d='M15 3v4h4'/%3E%3Cpath d='M9 12h7'/%3E%3Cpath d='M9 16h7'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h9l4 4v14H6z'/%3E%3Cpath d='M15 3v4h4'/%3E%3Cpath d='M9 12h7'/%3E%3Cpath d='M9 16h7'/%3E%3C/svg%3E"); }
+  .speak::before { width: 22px; height: 22px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9v6h4l5 4V5L8 9H4z'/%3E%3Cpath d='M16.5 8.5a5 5 0 0 1 0 7'/%3E%3Cpath d='M19 6a8.5 8.5 0 0 1 0 12'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9v6h4l5 4V5L8 9H4z'/%3E%3Cpath d='M16.5 8.5a5 5 0 0 1 0 7'/%3E%3Cpath d='M19 6a8.5 8.5 0 0 1 0 12'/%3E%3C/svg%3E"); }
+  .speak { width: 44px; height: 44px; }
+  .panel { grid-column: 1 / -1; margin-top: 8px; display: grid; gap: 8px; }
+  .pbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pbtn { cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 12px; border: 2px solid var(--rule); border-radius: 10px; background: var(--paper); color: var(--accent); font-weight: 700; font-size: 1rem; text-decoration: none; }
+  .pbtn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .pbtn.danger { color: var(--danger); border-color: var(--danger); }
+  .pbtn.dangerfill { background: var(--danger); border-color: var(--danger); color: var(--paper); }
+  .word .note { margin-top: 8px; padding: 8px 12px; background: var(--paper-2); border-left: 4px solid var(--accent); border-radius: 8px; font-size: 1rem; font-weight: 400; line-height: 1.4; white-space: pre-wrap; word-break: break-word; color: var(--ink); }
+  .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .topicons { display: flex; gap: 8px; flex: none; }
+  .top .iconbtn { flex: none; margin-top: 4px; }
+  .remind { margin-bottom: 14px; padding: 10px 12px; border: 2px solid var(--accent); border-radius: 12px; background: var(--paper-2); }
+  .remind p { margin: 0 0 8px; font-size: 1rem; }
+  .azbar { position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 20; display: flex; flex-direction: column; align-items: center; width: 24px; padding: 4px 0; background: color-mix(in srgb, var(--paper) 85%, transparent); border-radius: 12px 0 0 12px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .azbar.rev { flex-direction: column-reverse; }
+  .azbar[hidden] { display: none; }
+  .azbar button { border: 0; background: transparent; color: var(--accent); font-size: 0.7rem; font-weight: 700; line-height: 1; height: 15px; width: 24px; padding: 0; cursor: pointer; }
+  .azbar button:disabled { opacity: 0.25; cursor: default; }
+  .azbubble { position: fixed; right: 44px; top: 50%; transform: translateY(-50%); z-index: 21; width: 64px; height: 64px; display: grid; place-items: center; font-size: 2rem; font-weight: 700; color: var(--accent-text); background: var(--accent); border-radius: 16px; pointer-events: none; }
+  .azbubble[hidden] { display: none; }
+  body.has-az .page { padding-right: 32px; }
+  .qspk { width: 64px; height: 64px; color: var(--accent); margin: 4px auto; }
+  .qcard .qspk::before { width: 100%; height: 100%; }
+  /* The icon strip spans the card's full width down to its bottom edge and ignores taps (see the click
+     handler), so a slip near the icons never flips the card. The margins and padding cancel out visually. */
+  .qtools { display: flex; justify-content: center; gap: 12px; align-self: stretch; margin: 6px -16px -22px; padding: 8px 16px 22px; cursor: default; }
+  /* Each icon is easier to hit than it looks: an invisible larger touch area around it. */
+  .qtools .iconbtn { position: relative; }
+  .qtools .iconbtn::after { content: ''; position: absolute; inset: -12px -6px; }
+  .prow { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+  .prow b { font-size: 1.1rem; }
+  .pstack { display: flex; height: 18px; border: 2px solid var(--rule); border-radius: 999px; overflow: hidden; margin: 8px 0 10px; background: var(--paper-2); }
+  .pstack i { display: block; height: 100%; }
+  .pdot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; vertical-align: -1px; }
+  .pbars { display: flex; align-items: flex-end; gap: 4px; height: 96px; margin-top: 8px; }
+  .pbars > div { flex: 1 1 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; font-size: 0.7rem; color: var(--ink-soft); }
+  .pbars i { display: block; width: 100%; min-height: 2px; background: var(--accent); border-radius: 4px 4px 0 0; }
+  .pbars .today i { background: var(--ok); }
+  .btn.full a, a.btn { text-decoration: none; }
+  .setcard { margin-bottom: 16px; }
+  .setcard .check { padding: 8px 2px; }
+  /* Cover mode: French hidden behind a bar until the word is opened */
+  .words.cover .word:not(.open) .main .fr, .wotd.cover .wfr:not(.shown) { color: transparent; background: var(--rule); border-radius: 6px; width: fit-content; max-width: 100%; user-select: none; }
+  /* Word of the day */
+  .wotd { margin-bottom: 14px; padding: 10px 12px 12px; border: 2px solid var(--accent); border-radius: 12px; background: var(--paper-2); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; }
+  .wotd[hidden] { display: none; }
+  .wotd .wlabel { grid-column: 1 / -1; font-size: 0.95rem; font-weight: 700; color: var(--ink-soft); }
+  .wotd .wmain { min-width: 0; }
+  .wotd .wen { font-size: 1.5rem; font-weight: 700; line-height: 1.2; word-break: break-word; }
+  .wotd .wfr { font-size: 1.2rem; color: var(--french); word-break: break-word; margin-top: 2px; }
+  .wotd.cover .wfr:not(.shown) { cursor: pointer; }
+  .wotd .wbtns { display: flex; gap: 6px; }
+  .setcard.backup { margin-top: 0; }
+  .about { margin: 4px 0 8px; text-align: center; font-size: 0.8rem; color: var(--ink-soft); }
+  .resetrow { padding: 10px 0; border-top: 1px solid var(--rule); }
+  .resetrow:first-of-type { border-top: 0; padding-top: 0; }
+  .resetrow p { margin: 0 0 8px; color: var(--ink-soft); font-size: 1rem; }
+  .confirm-text { margin: 0 0 12px; font-size: 1.05rem; }
+  .confirm-text.warn { color: var(--danger); font-weight: 700; }
+  .sethead { margin: 0 0 10px; font-size: 1.1rem; }
+  .seg { display: flex; margin-bottom: 12px; border: 2px solid var(--accent); border-radius: 12px; overflow: hidden; }
+  .seg button { flex: 1 1 0; min-height: 44px; padding: 6px 4px; border: 0; border-right: 2px solid var(--accent); background: transparent; color: var(--accent); font-weight: 700; font-size: 0.95rem; cursor: pointer; }
+  .seg button:last-child { border-right: 0; }
+  .seg button[aria-checked="true"] { background: var(--accent); color: var(--accent-text); }
+  .qz { position: fixed; inset: 0; z-index: 50; background: var(--paper); overflow-y: auto; padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 28px); }
+  .qz[hidden] { display: none; }
+  .qz-inner { max-width: 560px; margin: 0 auto; }
+  .qz-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .qz h2 { font-size: 1.6rem; line-height: 1.15; margin: 0; }
+  .qbar { height: 10px; background: var(--paper-2); border: 2px solid var(--rule); border-radius: 999px; overflow: hidden; }
+  .qbar > i { display: block; height: 100%; background: var(--accent); }
+  .qcard { width: 100%; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 22px 16px; border: 2px solid var(--ink); border-radius: 18px; background: var(--paper-2); color: var(--ink); cursor: pointer; }
+  .qcard:not([role="button"]) { cursor: default; }
+  .qcard .lang { font-size: 0.95rem; color: var(--ink-soft); }
+  .qcard .big { font-size: 2.2rem; font-weight: 700; line-height: 1.2; word-break: break-word; }
+  .qcard .big.fr { color: var(--french); }
+  .qcard .hint { margin-top: 10px; color: var(--ink-soft); font-size: 1rem; }
+  .qans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .qans .btn { min-height: 62px; }
+  .qstack { display: grid; gap: 10px; margin-top: 18px; }
+  .big-score { font-size: 2.4rem; font-weight: 700; line-height: 1.1; margin: 4px 0 8px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn, .iconbtn { transition: background-color .12s, border-color .12s; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="top">
+    <div>
+      <h1 class="keep-bi">Mon Carnet de Mots</h1>
+      <p class="sub">My English vocabulary · Mon vocabulaire anglais</p>
+    </div>
+    <div class="topicons">
+    <button class="iconbtn" id="progressbtn" type="button" aria-label="My progress · Mes progrès" title="My progress · Mes progrès"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V11"/><path d="M12 21V4"/><path d="M19 21v-8"/></svg></button>
+    <button class="iconbtn" id="settingsbtn" type="button" aria-label="Settings · Réglages" title="Settings · Réglages"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </header>
+  <div class="remind" id="remind" hidden role="status">
+    <p id="remindtext"></p>
+    <div class="toolrow">
+      <button class="btn small" id="remindnow" type="button">Back up now · Sauvegarder</button>
+      <button class="btn ghost small" id="remindlater" type="button">Later · Plus tard</button>
+    </div>
+  </div>
+
+  <div class="topbtns">
+    <button class="btn" id="addtoggle" type="button" aria-expanded="false" aria-controls="addcard">Add a word · Ajouter un mot</button>
+    <button class="btn ghost" id="qstart" type="button">Quiz</button>
+  </div>
+
+  <section class="card" id="addcard" aria-label="Add a word" hidden>
+    <label class="field">
+      <span>English word · Mot en anglais</span>
+      <input type="text" id="en" class="en-input" autocomplete="off" autocapitalize="none" spellcheck="true" lang="en">
+    </label>
+    <label class="field">
+      <span>French translation · Traduction en français</span>
+      <input type="text" id="fr" class="fr-input" autocomplete="off" autocapitalize="none" lang="fr">
+    </label>
+    <div class="field">
+      <span>Categories, optional · Catégories (facultatif)</span>
+      <div id="catwrap"></div>
+    </div>
+    <label class="field">
+      <span>Note, optional · Remarque (facultatif)</span>
+      <textarea id="note" rows="2" placeholder="An example sentence or a tip · Une phrase d’exemple ou un conseil" maxlength="400"></textarea>
+    </label>
+    <button class="btn full" id="add" type="button">Add word · Ajouter</button>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="dupact" id="dupact" hidden>
+      <button class="btn small" id="dupreplace" type="button">Replace translation · Remplacer la traduction</button>
+      <button class="btn ghost small" id="dupcancel" type="button">Cancel · Annuler</button>
+    </div>
+  </section>
+
+  <section class="wotd" id="wotd" aria-label="Word of the day · Mot du jour" hidden></section>
+
+  <section class="tools" aria-label="Browse">
+    <input type="search" id="search" placeholder="Search · Chercher" aria-label="Search words" autocomplete="off">
+    <div class="toolrow">
+      <label class="field" style="margin:0;flex:1 1 180px">
+        <span>Order · Ordre</span>
+        <select id="sort">
+          <option value="az">A to Z · A à Z</option>
+          <option value="za">Z to A · Z à A</option>
+          <option value="new">Newest first · Récents d’abord</option>
+          <option value="old">Oldest first · Anciens d’abord</option>
+          <option value="weak">Weak first · Mots difficiles d’abord</option>
+        </select>
+      </label>
+      <label class="field" id="catfilterwrap" style="margin:0;flex:1 1 180px" hidden>
+        <span>Category · Catégorie</span>
+        <select id="catfilter"></select>
+      </label>
+    </div>
+  </section>
+
+  <p class="count" id="count"></p>
+  <ul class="words" id="list"></ul>
+  <button class="btn ghost full" id="more" type="button" hidden style="margin-top:12px"></button>
+
+</main>
+
+<div id="editsheet" class="sheet" role="dialog" aria-modal="true" aria-label="Edit word" hidden></div>
+<div id="confirmsheet" class="sheet" role="alertdialog" aria-modal="true" aria-label="Confirm" hidden></div>
+<div id="catsheet" class="sheet" role="dialog" aria-modal="true" aria-label="Choose a category" hidden></div>
+<nav id="azbar" class="azbar" aria-label="Jump to letter · Aller à la lettre" hidden></nav>
+<div id="azbubble" class="azbubble" hidden aria-hidden="true"></div>
+<div id="settings" class="qz" role="dialog" aria-modal="true" aria-label="Settings" hidden>
+  <div class="qz-inner">
+    <div class="qz-top">
+      <h2>Settings · Réglages</h2>
+      <button class="btn ghost small" id="settingsclose" type="button">Close · Fermer</button>
+    </div>
+    <section class="card setcard">
+      <h3 class="sethead">App language · Langue de l’application</h3>
+      <div class="seg keep-bi" id="langseg" role="radiogroup" aria-label="Language · Langue">
+    <button type="button" role="radio" data-lang="en" aria-checked="false">English</button>
+    <button type="button" role="radio" data-lang="fr" aria-checked="false">Français</button>
+    <button type="button" role="radio" data-lang="both" aria-checked="true">Both · Les deux</button>
+  </div>
+    </section>
+    <section class="card setcard">
+      <h3 class="sethead">Theme · Thème</h3>
+      <div class="seg" id="themeseg" role="radiogroup" aria-label="Theme · Thème">
+        <button type="button" role="radio" data-theme="auto" aria-checked="true">Auto</button>
+        <button type="button" role="radio" data-theme="light" aria-checked="false">Light · Clair</button>
+        <button type="button" role="radio" data-theme="dark" aria-checked="false">Dark · Sombre</button>
+      </div>
+    </section>
+    <section class="card setcard">
+      <h3 class="sethead">Text size · Taille du texte</h3>
+      <div class="seg" id="sizeseg" role="radiogroup" aria-label="Text size · Taille du texte">
+        <button type="button" role="radio" data-size="sm" aria-checked="false">Smaller · Plus petit</button>
+        <button type="button" role="radio" data-size="md" aria-checked="true">Default · Normal</button>
+        <button type="button" role="radio" data-size="lg" aria-checked="false">Larger · Plus grand</button>
+      </div>
+    </section>
+    <section class="card setcard">
+      <h3 class="sethead">Learning · Apprentissage</h3>
+      <label class="check">
+        <input type="checkbox" id="optcover">
+        <span>Cover mode: hide the translation · Mode caché : masquer la traduction</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="optslow">
+        <span>Speak slowly · Voix lente</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="optwotd" checked>
+        <span>Show word of the day · Afficher le mot du jour</span>
+      </label>
+    </section>
+    <section class="card setcard backup" id="backupcard">
+      <h3 class="sethead">Backup · Sauvegarde</h3>
+      <p class="msg" id="lastbackup"></p>
+    <p style="margin:4px 0 10px;color:var(--ink-soft);font-size:1rem">If this phone is lost or reset, your words are gone. Backup saves a copy you can keep safe. Restore brings it back. · Si ce téléphone est perdu ou réinitialisé, vos mots disparaissent. Sauvegarder garde une copie en lieu sûr. Restaurer la remet en place.</p>
+    <div class="toolrow">
+      <button class="btn small" id="exportxlsx" type="button">Backup my list · Sauvegarder ma liste</button>
+      <button class="btn ghost small" id="restorefilebtn" type="button">Restore from file · Restaurer depuis un fichier</button>
+    </div>
+    <input type="file" id="restorefile" accept=".txt,.csv,.xlsx,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+    <details class="adv" id="adv">
+      <summary>Advanced · Avancé</summary>
+      <label class="check">
+        <input type="checkbox" id="withprogress" checked>
+        <span>Include quiz progress · Inclure la progression du quiz</span>
+      </label>
+      <div class="toolrow">
+        <button class="btn ghost small" id="share" type="button">Backup as text file · Sauvegarder en fichier texte</button>
+        <button class="btn ghost small" id="copy" type="button">Copy as text · Copier le texte</button>
+        <button class="btn ghost small" id="restore" type="button">Restore from pasted text · Restaurer depuis le texte collé</button>
+      </div>
+      <textarea id="box" placeholder="One word per line, like: apple = pomme | Food | I eat an apple · Un mot par ligne, par exemple : apple = pomme | Food | I eat an apple" aria-label="Backup text"></textarea>
+    </details>
+    <p class="msg" id="bmsg" role="status" aria-live="polite"></p>
+    </section>
+    <section class="card setcard resetcard" id="resetcard">
+      <h3 class="sethead">Reset · Réinitialiser</h3>
+      <div class="resetrow">
+        <p>Quiz statistics: clears your progress charts and streak. Your words stay. · Statistiques du quiz : efface vos graphiques et votre série. Vos mots restent.</p>
+        <button class="btn ghost small" id="resetstats" type="button">Reset statistics · Réinitialiser les statistiques</button>
+      </div>
+      <div class="resetrow">
+        <p>Weak words: puts every difficult word back to “new”. Your words stay. · Mots difficiles : remet chaque mot difficile à « nouveau ». Vos mots restent.</p>
+        <button class="btn ghost small" id="resetweak" type="button">Reset weak words · Réinitialiser les mots difficiles</button>
+      </div>
+      <div class="resetrow">
+        <p>Delete all words: empties your whole list. · Supprimer tous les mots : vide toute votre liste.</p>
+        <button class="btn danger small" id="resetall" type="button">Delete all words · Supprimer tous les mots</button>
+      </div>
+      <p class="msg" id="resetmsg" role="status" aria-live="polite"></p>
+    </section>
+    <p class="about keep-bi">Mon Carnet de Mots Anglais · Version 1.0 · PetitApp</p>
+  </div>
+</div>
+<div id="progress" class="qz" role="dialog" aria-modal="true" aria-label="My progress" hidden></div>
+<div id="qz" class="qz" role="dialog" aria-modal="true" aria-label="Quiz" hidden></div>
+
+<script>
+(function () {
+  var KEY = "english-words-v1";
+  var UIKEY = 'english-words-ui-v1';
+  var ui = { lang: 'fr', theme: 'auto', backupAt: 0, backupN: 0, snoozeUntil: 0 };
+  try {
+    var uiRaw = localStorage.getItem(UIKEY);
+    if (uiRaw) {
+      var u0 = JSON.parse(uiRaw);
+      for (var uk in u0) ui[uk] = u0[uk];
+      if (!u0.lang && u0.fr === false) ui.lang = 'en';
+    }
+  } catch (e) {}
+  var lang = (ui.lang === 'en' || ui.lang === 'both') ? ui.lang : 'fr';   // 'fr' (default), 'en' or 'both'
+  if (ui.theme !== 'light' && ui.theme !== 'dark') ui.theme = 'auto';
+  if (ui.withProgress === undefined) ui.withProgress = true;
+  if (ui.textSize !== 'sm' && ui.textSize !== 'lg') ui.textSize = 'md';
+  ui.cover = !!ui.cover;            // cover mode: hide the French in the list
+  ui.slow = !!ui.slow;              // speak slowly
+  if (ui.showWotd === undefined) ui.showWotd = true;   // word of the day
+  function saveUi() { ui.lang = lang; try { localStorage.setItem(UIKEY, JSON.stringify(ui)); } catch (e) {} }
+  var words = [];          // {id, en, fr, t}
+  var memoryOnly = false;
+  var editingId = null;
+  var activeCat = "";
+  var openId = null;       // id of the word whose panel is open
+  var deletingId = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var enEl = $("en"), frEl = $("fr"), noteEl = $("note"), msg = $("msg"), listEl = $("list");
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      words = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(words)) words = [];
+      words.forEach(function (w) {            // older saves had one category (w.cat); now a word can have several
+        if (!Array.isArray(w.cats)) w.cats = w.cat ? [canonCat(w.cat)] : [];
+        delete w.cat;
+      });
+    } catch (e) { words = []; memoryOnly = true; }
+  }
+  function save() { saveWords(); updateReminder(); if (typeof renderWotd === 'function') renderWotd(); }
+  function saveWords() {
+    try { localStorage.setItem(KEY, JSON.stringify(words)); }
+    catch (e) { memoryOnly = true; setMsg("Could not save on this device. Use Backup to keep your list. \u00b7 Impossible d\u2019enregistrer sur cet appareil. Utilisez la sauvegarde pour garder votre liste.", true); }
+  }
+  function setMsg(t, err) { msg.textContent = t || ""; msg.className = "msg" + (err ? " err" : ""); }
+  function norm(s) { return s.trim().replace(/\s+/g, " "); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  // Duplicate warning: a word that is already in the list is never added twice without asking.
+  var dupAct = $("dupact"), dupHint = false;
+  function findDup(en) { var k = en.toLowerCase(); return words.find(function (w) { return w.en.toLowerCase() === k; }) || null; }
+  function dupMsg(d) { return "\u201c" + d.en + "\u201d is already in your list: " + d.fr + " \u00b7 \u201c" + d.en + "\u201d est d\u00e9j\u00e0 dans votre liste : " + d.fr; }
+  function setWarn(t) { msg.textContent = t; msg.className = "msg warn"; }
+  function clearDup() { dupAct.hidden = true; if (dupHint) { dupHint = false; setMsg(""); } }
+
+  function addWord(replace) {
+    var en = norm(enEl.value), fr = norm(frEl.value), cats = addPicker.get(), note = norm(noteEl.value);
+    if (!en || !fr) {
+      setMsg(!en ? "Type the English word first. · Écrivez le mot anglais." : "Type the French translation. · Écrivez la traduction.", true);
+      (!en ? enEl : frEl).focus();
+      return;
+    }
+    var dup = findDup(en);
+    if (dup && replace !== true) {          // ask first: keep the old translation, or replace it
+      setWarn(dupMsg(dup)); dupHint = true; dupAct.hidden = false;
+      return;
+    }
+    dupHint = false; dupAct.hidden = true;
+    if (dup) {
+      dup.fr = fr; dup.cats = unionCats(dup.cats, cats); if (note) dup.note = note; save(); render();
+      setMsg("“" + en + "” was already in your list. Translation updated. \u00b7 “" + en + "” \u00e9tait d\u00e9j\u00e0 dans votre liste. Traduction mise \u00e0 jour.");
+    } else {
+      words.push({ id: uid(), en: en, fr: fr, cats: cats, note: note, t: Date.now() });
+      save(); render();
+      setMsg("Added: " + en + " = " + fr + " \u00b7 Ajout\u00e9 : " + en + " = " + fr);
+    }
+    addPicker.refresh();
+    enEl.value = ""; frEl.value = ""; noteEl.value = ""; enEl.focus();
+  }
+
+  // Inside the Android app, a native bridge (AndroidTTS) does the speaking;
+  // in a normal browser, the built-in speech synthesis is used.
+  var nativeTTS = typeof window.AndroidTTS !== "undefined";
+  var speechOK = nativeTTS || ("speechSynthesis" in window && "SpeechSynthesisUtterance" in window);
+  function speak(text) {
+    if (!speechOK) return;
+    var rate = ui.slow ? 0.55 : 0.85;
+    if (nativeTTS) {
+      try {
+        if (typeof window.AndroidTTS.speakAt === "function") window.AndroidTTS.speakAt(text, rate);
+        else window.AndroidTTS.speak(text);          // older app version: fixed speed
+      } catch (e) {}
+      return;
+    }
+    try {
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US"; u.rate = rate;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  var ICON = {
+    speaker: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>',
+    look: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>',
+    close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>',
+    note: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 12h7"/><path d="M9 16h7"/></svg>'
+  };
+
+  function mk(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function iconBtn(svg, label, fn) {
+    var b = mk("button", "iconbtn"); b.type = "button";
+    b.setAttribute("aria-label", label); b.title = label;
+    b.innerHTML = svg; b.addEventListener("click", fn);
+    return b;
+  }
+
+  var DEFAULT_CATS = [
+    ["Actions & Activities", "Actions et activités"],
+    ["Adjectives & Descriptions", "Adjectifs et descriptions"],
+    ["Animals & Nature", "Animaux et nature"],
+    ["Body & Health", "Corps et santé"],
+    ["Clothes & Fashion", "Vêtements et mode"],
+    ["Education", "Éducation"],
+    ["Emotions & Feelings", "Émotions et sentiments"],
+    ["Everyday Phrases", "Expressions courantes"],
+    ["Family & Friends", "Famille et amis"],
+    ["Food & Cooking", "Cuisine et alimentation"],
+    ["Geography & Places", "Géographie et lieux"],
+    ["Home & Household", "Maison et ménage"],
+    ["Money & Finance", "Argent et finances"],
+    ["Numbers & Time", "Nombres et temps"],
+    ["Shopping & Retail", "Achats et commerce"],
+    ["Social", "Vie sociale"],
+    ["Technology", "Technologie"],
+    ["Transport & Travel", "Transports et voyages"],
+    ["Work", "Travail"]
+  ];
+  var CAT_FR = {}, CANON = {};
+  DEFAULT_CATS.forEach(function (c) { CAT_FR[c[0]] = c[1]; CANON[c[0].toLowerCase()] = c[0]; });
+  // Names used by earlier versions of the app, moved onto the new list.
+  var OLD_CATS = {
+    "food": "Food & Cooking", "family": "Family & Friends", "home": "Home & Household",
+    "body & health": "Body & Health", "doctor": "Body & Health", "shopping": "Shopping & Retail",
+    "clothes": "Clothes & Fashion", "transport": "Transport & Travel", "travel": "Transport & Travel",
+    "weather": "Animals & Nature", "numbers & time": "Numbers & Time", "feelings": "Emotions & Feelings",
+    "places": "Geography & Places", "animals": "Animals & Nature", "everyday phrases": "Everyday Phrases"
+  };
+  function canonCat(c) {
+    var k = norm(String(c)), lk = k.toLowerCase();
+    return OLD_CATS[lk] || CANON[lk] || k;
+  }
+  function parseCats(str) {
+    var out = [];
+    String(str).split(";").forEach(function (x) { var c = canonCat(x); if (c && out.indexOf(c) < 0) out.push(c); });
+    return out;
+  }
+  function unionCats(a, b) {
+    var out = (a || []).slice();
+    (b || []).forEach(function (c) { if (out.indexOf(c) < 0) out.push(c); });
+    return out;
+  }
+  function catName(c) { return lang === "fr" && CAT_FR[c] ? CAT_FR[c] : c; }
+  function hasCat(w, c) { return (w.cats || []).indexOf(c) > -1; }
+  function catLabel(c) { return CAT_FR[c] ? c + " · " + CAT_FR[c] : c; }
+  function allCats() {
+    var list = DEFAULT_CATS.map(function (c) { return c[0]; });
+    catList().forEach(function (c) { if (list.indexOf(c) < 0) list.push(c); });
+    return list;
+  }
+
+  /* Category pop-up: pick as many categories as she likes */
+  var sheet = $("catsheet"), sheetOpener = null;
+  function closeSheet() {
+    sheet.hidden = true;
+    if (sheetOpener && sheetOpener.isConnected && sheetOpener.focus) sheetOpener.focus();
+  }
+  function openCatSheet(initial, wordText, done) {
+    sheetOpener = document.activeElement;
+    var sel = (initial || []).slice();
+    sheet.innerHTML = "";
+    var box = mk("div", "sheet-box");
+    box.appendChild(mk("h3", "", "Choose categories \u00b7 Choisir les cat\u00e9gories"));
+    if (wordText) box.appendChild(mk("div", "sheet-word en", wordText));
+    var grid = mk("div", "sheet-grid");
+    function paint(b) {
+      var on = sel.indexOf(b._cat) > -1;
+      b.className = "chip" + (on ? " on" : "");
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    }
+    function addChip(c) {
+      var b = mk("button", "chip", catName(c)); b.type = "button"; b._cat = c;
+      b.addEventListener("click", function () {
+        var i = sel.indexOf(c);
+        if (i > -1) sel.splice(i, 1); else sel.push(c);
+        paint(b);
+      });
+      paint(b); grid.appendChild(b);
+      return b;
+    }
+    var names = allCats();
+    sel.forEach(function (c) { if (names.indexOf(c) < 0) names.push(c); });
+    var firstChip = null;
+    names.forEach(function (c) { var b = addChip(c); if (!firstChip) firstChip = b; });
+    box.appendChild(grid);
+
+    var row = mk("div", "toolrow");
+    var inp = mk("input"); inp.type = "text"; inp.maxLength = 40;
+    inp.placeholder = "New category \u00b7 Nouvelle cat\u00e9gorie"; inp.setAttribute("aria-label", "New category");
+    var addb = mk("button", "btn small", "Add \u00b7 Ajouter"); addb.type = "button";
+    addb.addEventListener("click", function () {
+      var v = canonCat(inp.value).replace(/[;|]/g, ",");
+      if (!v) { inp.focus(); return; }
+      var existing = null;
+      for (var i = 0; i < grid.children.length; i++) if (grid.children[i]._cat === v) existing = grid.children[i];
+      if (existing) { if (sel.indexOf(v) < 0) existing.click(); }
+      else { var nb = addChip(v); sel.push(v); paint(nb); }
+      inp.value = "";
+    });
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); addb.click(); } });
+    row.appendChild(inp); row.appendChild(addb);
+    box.appendChild(row);
+
+    var bar = mk("div", "toolrow"); bar.style.marginTop = "14px";
+    var ok = mk("button", "btn", "Done \u00b7 Termin\u00e9"); ok.type = "button";
+    ok.addEventListener("click", function () {
+      var out = sel.slice().sort(function (a, b) { return a.localeCompare(b); });
+      closeSheet(); done(out);
+    });
+    var clear = mk("button", "btn ghost", "Clear all \u00b7 Tout effacer"); clear.type = "button";
+    clear.addEventListener("click", function () {
+      sel.length = 0;
+      for (var i = 0; i < grid.children.length; i++) paint(grid.children[i]);
+    });
+    var cancel = mk("button", "btn ghost", "Cancel \u00b7 Annuler"); cancel.type = "button";
+    cancel.addEventListener("click", closeSheet);
+    bar.appendChild(ok); bar.appendChild(clear); bar.appendChild(cancel);
+    box.appendChild(bar);
+    sheet.appendChild(box);
+    sheet.hidden = false;
+    if (firstChip) firstChip.focus({ preventScroll: true });
+  }
+  sheet.addEventListener("click", function (e) { if (e.target === sheet) closeSheet(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !sheet.hidden) closeSheet(); });
+
+  // The category control used in the add form and the edit form: a button that opens the pop-up.
+  function catField(initial) {
+    var cur = (initial || []).slice();
+    var btn = mk("button", "catbtn"); btn.type = "button";
+    var lab = mk("span"); btn.appendChild(lab);
+    function show() { lab.textContent = cur.length ? cur.map(catName).join(", ") : "Choose categories \u00b7 Choisir les cat\u00e9gories"; }
+    btn.addEventListener("click", function () { openCatSheet(cur, "", function (arr) { cur = arr; show(); }); });
+    show();
+    return { el: btn, get: function () { return cur.slice(); }, set: function (a) { cur = (a || []).slice(); show(); }, refresh: show };
+  }
+
+  function catList() {
+    var s = {};
+    words.forEach(function (w) { (w.cats || []).forEach(function (c) { s[c] = 1; }); });
+    return Object.keys(s).sort(function (a, b) { return a.localeCompare(b); });
+  }
+  var NONE = "__none";
+  // The category filter is a dropdown; only categories that have words in them are listed.
+  function renderFilter() {
+    var sel = $("catfilter"), wrap = $("catfilterwrap"), counts = {}, nNone = 0;
+    words.forEach(function (w) {
+      var c = w.cats || [];
+      if (!c.length) nNone++;
+      c.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; });
+    });
+    var names = Object.keys(counts).sort(function (a, b) { return a.localeCompare(b); });
+    if (activeCat === NONE ? nNone === 0 : (activeCat && !counts[activeCat])) activeCat = "";
+    wrap.hidden = names.length === 0;
+    sel.innerHTML = "";
+    function add(v, t) { var o = mk("option", "", t); o.value = v; sel.appendChild(o); }
+    add("", "All categories \u00b7 Toutes les cat\u00e9gories");
+    names.forEach(function (c) {
+      var l = catLabel(c).split(" \u00b7 ");
+      add(c, l[0] + " (" + counts[c] + ")" + (l[1] ? " \u00b7 " + l[1] + " (" + counts[c] + ")" : ""));
+    });
+    if (nNone) add(NONE, "No category (" + nNone + ") \u00b7 Sans cat\u00e9gorie (" + nNone + ")");
+    sel.value = activeCat;
+  }
+
+  var PAGE = 100, limit = PAGE, shownRows = [];
+  var collator = new Intl.Collator("en", { sensitivity: "base" });
+  var moreBtn = $("more");
+  function updateCount() {
+    var q = $("search").value.trim().toLowerCase(), n = words.length;
+    if (n === 0) { $("count").textContent = ""; return; }
+    var filtered = q || activeCat, k = shownRows.length;
+    $("count").textContent = (filtered ? k + " of " + n : n) + (n === 1 ? " word" : " words") + " \u00b7 " +
+      (filtered ? k + " sur " + n : n) + (n === 1 ? " mot" : " mots");
+  }
+  function updateMore() {
+    var left = shownRows.length - listEl.children.length;
+    moreBtn.hidden = left <= 0;
+    if (left > 0) { var k = Math.min(PAGE, left); moreBtn.textContent = "Show " + k + " more \u00b7 Voir " + k + " de plus"; }
+  }
+
+  function render() {
+    var q = $("search").value.trim().toLowerCase();
+    var order = $("sort").value;
+    renderFilter();
+    var shown = words.filter(function (w) {
+      if (activeCat === NONE ? (w.cats && w.cats.length) : (activeCat && !hasCat(w, activeCat))) return false;
+      return !q || w.en.toLowerCase().indexOf(q) > -1 || w.fr.toLowerCase().indexOf(q) > -1 || (w.note && w.note.toLowerCase().indexOf(q) > -1);
+    });
+    var byAZ = function (a, b) { return collator.compare(a.en, b.en); };
+    // Weak first: words marked "Still learning" in the quiz, then never-quizzed words, then known words.
+    var weakRank = function (w) { return w.box === 0 ? 0 : (w.box === undefined ? 1 : w.box + 1); };
+    shown.sort(function (a, b) {
+      if (order === "za") return byAZ(b, a);
+      if (order === "new") return (b.t - a.t) || byAZ(a, b);
+      if (order === "old") return (a.t - b.t) || byAZ(a, b);
+      if (order === "weak") return (weakRank(a) - weakRank(b)) || byAZ(a, b);
+      return byAZ(a, b);
+    });
+    shownRows = shown;
+    buildAZ(order);
+    openId = null; deletingId = null; editingId = null;
+
+    updateCount();
+
+    listEl.innerHTML = "";
+    moreBtn.hidden = true;
+    if (words.length === 0) {
+      listEl.appendChild(mk("li", "empty", "Your list is empty. Add your first word above. · Votre liste est vide. Ajoutez un premier mot ci-dessus."));
+      return;
+    }
+    if (shown.length === 0) {
+      listEl.appendChild(mk("li", "empty", "No word found. · Aucun mot trouvé."));
+      return;
+    }
+    appendRows(Math.max(limit, PAGE));
+  }
+
+  // Only a page of rows is built at a time; more are added as she scrolls.
+  function appendRows(upTo) {
+    var from = listEl.children.length, frag = document.createDocumentFragment();
+    shownRows.slice(from, upTo).forEach(function (w) { frag.appendChild(rowEl(w)); });
+    listEl.appendChild(frag);
+    limit = listEl.children.length;
+    updateMore();
+  }
+
+  /* A to Z jump bar: tap or slide along the letters on the right edge */
+  var azBar = $("azbar"), azBubble = $("azbubble"), azFirst = {}, azBuilt = false, azDown = false, azLast = "", azTimer = 0;
+  function firstLetter(t) {
+    var c = String(t).normalize ? String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "") : String(t);
+    c = c.replace(/^[^A-Za-z0-9]+/, "").charAt(0).toUpperCase();
+    return /[A-Z]/.test(c) ? c : "";
+  }
+  function buildAZ(order) {
+    azFirst = {};
+    var alpha = order === "az" || order === "za";
+    if (alpha) for (var i = 0; i < shownRows.length; i++) { var L = firstLetter(shownRows[i].en); if (L && azFirst[L] === undefined) azFirst[L] = i; }
+    var show = alpha && shownRows.length >= 30;
+    azBar.hidden = !show;
+    document.body.classList.toggle("has-az", show);
+    if (!show) return;
+    if (!azBuilt) {
+      azBuilt = true;
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(function (L) {
+        var b = mk("button", "", L); b.type = "button"; b.setAttribute("data-l", L); b.setAttribute("aria-label", "Jump to " + L);
+        b.addEventListener("click", function (e) { if (e.detail === 0) jumpToLetter(L); });
+        azBar.appendChild(b);
+      });
+    }
+    azBar.classList.toggle("rev", order === "za");
+    for (var j = 0; j < azBar.children.length; j++) azBar.children[j].disabled = azFirst[azBar.children[j].getAttribute("data-l")] === undefined;
+  }
+  function jumpToLetter(L) {
+    var idx = azFirst[L]; if (idx === undefined) return;
+    closePanel();
+    if (listEl.children.length <= idx) appendRows(idx + 30);
+    var li = listEl.children[idx];
+    if (li && li.scrollIntoView) li.scrollIntoView({ block: "start" });
+  }
+  function azMove(e) {
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    var b = el && el.closest ? el.closest("#azbar button") : null;
+    if (!b || b.disabled) return;
+    var L = b.getAttribute("data-l");
+    if (L === azLast) return;
+    azLast = L; jumpToLetter(L);
+    azBubble.textContent = L; azBubble.hidden = false;
+    clearTimeout(azTimer); azTimer = setTimeout(function () { azBubble.hidden = true; }, 700);
+  }
+  azBar.addEventListener("pointerdown", function (e) { azDown = true; try { azBar.setPointerCapture(e.pointerId); } catch (x) {} azMove(e); e.preventDefault(); });
+  azBar.addEventListener("pointermove", function (e) { if (azDown) azMove(e); });
+  azBar.addEventListener("pointerup", function () { azDown = false; azLast = ""; });
+  azBar.addEventListener("pointercancel", function () { azDown = false; azLast = ""; });
+
+  // A row is kept as small as possible: the word, its translation and the speaker button.
+  function rowEl(w) {
+    var li = mk("li", "word");
+    li.setAttribute("data-id", w.id);
+    var main = mk("div", "main");
+    main.setAttribute("role", "button"); main.tabIndex = 0; main.setAttribute("aria-expanded", "false");
+    var en = mk("div", "en", w.en);
+    if (w.note) { var ni = mk("span", "noteicon"); ni.setAttribute("aria-hidden", "true"); en.appendChild(ni); }
+    main.appendChild(en);
+    main.appendChild(mk("div", "fr", w.fr));
+    li.appendChild(main);
+    if (speechOK) {
+      var sp = mk("button", "iconbtn speak"); sp.type = "button";
+      sp.setAttribute("data-act", "speak"); sp.setAttribute("aria-label", "Hear " + w.en);
+      li.appendChild(sp);
+    }
+    return li;
+  }
+
+  function byId(id) {
+    for (var i = 0; i < words.length; i++) if (words[i].id === id) return words[i];
+    return null;
+  }
+  function liFor(id) { return listEl.querySelector('li.word[data-id="' + id + '"]'); }
+
+  function pbtn(cls, icon, text, act) {
+    var b = mk("button", "pbtn " + cls); b.type = "button"; b.setAttribute("data-act", act);
+    if (icon) b.insertAdjacentHTML("beforeend", icon);
+    b.appendChild(mk("span", "", text));
+    return b;
+  }
+  // Details exist only for the one word that is open: note, its categories, then the buttons.
+  function buildPanel(w) {
+    var p = mk("div", "panel");
+    if (w.note) p.appendChild(mk("div", "note", w.note));
+    var cr = mk("button", "catrow"); cr.type = "button"; cr.setAttribute("data-act", "cats");
+    var cs = w.cats || [];
+    if (cs.length) cs.forEach(function (c) { cr.appendChild(mk("span", "tag", catName(c))); });
+    else cr.appendChild(mk("span", "tagnone", "No category \u00b7 Aucune"));
+    cr.appendChild(mk("span", "taghint", "Change \u00b7 Modifier"));
+    p.appendChild(cr);
+    var bar = mk("div", "pbar");
+    if (deletingId === w.id) {
+      bar.appendChild(mk("span", "confirm", "Delete this word? \u00b7 Supprimer ?"));
+      bar.appendChild(pbtn("dangerfill", "", "Yes \u00b7 Oui", "delyes"));
+      bar.appendChild(pbtn("", "", "No \u00b7 Non", "delno"));
+    } else {
+      var look = document.createElement("a");
+      look.className = "pbtn";
+      look.href = "https://www.wordreference.com/enfr/" + encodeURIComponent(w.en);
+      look.target = "_blank"; look.rel = "noopener noreferrer";
+      look.insertAdjacentHTML("beforeend", ICON.look);
+      look.appendChild(mk("span", "", "Look up \u00b7 Chercher"));
+      bar.appendChild(look);
+      bar.appendChild(pbtn("", ICON.edit, "Edit \u00b7 Modifier", "edit"));
+      bar.appendChild(pbtn("danger", ICON.trash, "Delete \u00b7 Supprimer", "del"));
+    }
+    p.appendChild(bar);
+    return p;
+  }
+  function closePanel() {
+    if (openId === null) return;
+    var li = liFor(openId);
+    if (li) {
+      var p = li.querySelector(".panel"); if (p) p.remove();
+      li.classList.remove("open");
+      var m = li.querySelector(".main"); if (m) m.setAttribute("aria-expanded", "false");
+    }
+    openId = null; deletingId = null;
+  }
+  function openPanel(li, w) {
+    closePanel();
+    openId = w.id; deletingId = null;
+    li.classList.add("open");
+    li.querySelector(".main").setAttribute("aria-expanded", "true");
+    li.appendChild(buildPanel(w));
+  }
+  function refreshPanel(li, w) {
+    var p = li.querySelector(".panel");
+    if (p) p.replaceWith(buildPanel(w));
+  }
+
+  // Saves a word's categories from the pop-up and keeps the list in step with the current filter.
+  function setCats(w, arr) {
+    w.cats = arr; save();
+    var before = activeCat;
+    var li = liFor(w.id);
+    var keep = !activeCat || (activeCat === NONE ? arr.length === 0 : arr.indexOf(activeCat) > -1);
+    renderFilter();
+    if (activeCat !== before) { render(); return; }
+    if (li) {
+      if (keep) refreshPanel(li, w);
+      else { if (openId === w.id) openId = null; li.remove(); shownRows = shownRows.filter(function (x) { return x !== w; }); }
+    }
+    updateCount();
+    if (!keep) {
+      if (shownRows.length === 0) render(); else { limit = listEl.children.length; updateMore(); }
+    }
+  }
+
+  function editRowEl(w) {
+    var li = mk("li", "word");
+    li.setAttribute("data-id", w.id);
+    var g = mk("div", "editgrid");
+    var e1 = mk("input"); e1.type = "text"; e1.value = w.en; e1.className = "en-input"; e1.setAttribute("aria-label", "English word");
+    var e2 = mk("input"); e2.type = "text"; e2.value = w.fr; e2.className = "fr-input"; e2.setAttribute("aria-label", "French translation");
+    var e3 = catField(w.cats || []);
+    var e4 = mk("textarea"); e4.rows = 2; e4.value = w.note || ""; e4.maxLength = 400;
+    e4.placeholder = "Note (optional) \u00b7 Remarque (facultatif)"; e4.setAttribute("aria-label", "Note");
+    var r = mk("div", "toolrow");
+    var s = mk("button", "btn small", "Save \u00b7 Enregistrer"); s.type = "button";
+    var c = mk("button", "btn ghost small", "Cancel \u00b7 Annuler"); c.type = "button";
+    s.addEventListener("click", function () {
+      var en = norm(e1.value), fr = norm(e2.value);
+      if (!en || !fr) { e1.focus(); return; }
+      w.en = en; w.fr = fr; w.cats = e3.get(); w.note = norm(e4.value);
+      editingId = null; save(); render();
+    });
+    c.addEventListener("click", function () { editingId = null; li.replaceWith(rowEl(w)); });
+    r.appendChild(s); r.appendChild(c);
+    g.appendChild(e1); g.appendChild(e2); g.appendChild(e3.el); g.appendChild(e4); g.appendChild(r);
+    li.appendChild(g);
+    setTimeout(function () { e1.focus(); }, 0);
+    return li;
+  }
+
+  // One listener for the whole list instead of several per row.
+  listEl.addEventListener("click", function (e) {
+    var li = e.target.closest("li.word"); if (!li) return;
+    if (e.target.closest(".editgrid")) return;
+    var w = byId(li.getAttribute("data-id")); if (!w) return;
+    var btn = e.target.closest("[data-act]");
+    if (btn) {
+      var act = btn.getAttribute("data-act");
+      if (act === "speak") speak(w.en);
+      else if (act === "cats") openCatSheet(w.cats || [], w.en, function (arr) { setCats(w, arr); });
+      else if (act === "edit") { closePanel(); editingId = w.id; li.replaceWith(editRowEl(w)); }
+      else if (act === "del") { deletingId = w.id; refreshPanel(li, w); }
+      else if (act === "delno") { deletingId = null; refreshPanel(li, w); }
+      else if (act === "delyes") {
+        words = words.filter(function (x) { return x.id !== w.id; });
+        openId = null; deletingId = null; save(); render();
+      }
+      return;
+    }
+    if (e.target.closest(".panel")) return;
+    if (openId === w.id) closePanel(); else openPanel(li, w);
+  });
+  listEl.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("main")) {
+      e.preventDefault(); e.target.click();
+    }
+  });
+  $("catfilter").addEventListener("change", function () { activeCat = this.value; limit = PAGE; render(); });
+
+  moreBtn.addEventListener("click", function () { appendRows(listEl.children.length + PAGE); });
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting && !moreBtn.hidden) appendRows(listEl.children.length + PAGE);
+    }, { rootMargin: "800px 0px" }).observe(moreBtn);
+  }
+
+  // One line per word: English = French | Category | Note
+  function progressOf(w) {
+    if (w.box === undefined) return '';
+    return 'level ' + w.box + ', due ' + dayKey(new Date(w.due || Date.now()));
+  }
+  // One line per word: English = French | Categories | Note | Progress   (the last two are optional)
+  function lineOf(w) {
+    var cs = (w.cats || []).map(function (c) { return c.replace(/[;|]/g, ','); }).join('; ');
+    var segs = [cs, (w.note || '').replace(/\|/g, '/'), ui.withProgress ? progressOf(w) : ''];
+    while (segs.length && !segs[segs.length - 1]) segs.pop();
+    var l = w.en + ' = ' + w.fr;
+    segs.forEach(function (x) { l += x ? ' | ' + x : ' |'; });
+    return l;
+  }
+
+  var wp = $("withprogress");
+  wp.checked = !!ui.withProgress;
+  wp.addEventListener("change", function () { ui.withProgress = wp.checked; saveUi(); });
+
+  /* Backup reminder */
+  var DAY = 86400000;
+  function reminderText() {
+    var n = words.length, now = Date.now();
+    if (n < 15 || now < (ui.snoozeUntil || 0)) return null;
+    if (!ui.backupAt) return "You haven\u2019t backed up your words yet. \u00b7 Vous n\u2019avez pas encore sauvegard\u00e9 vos mots.";
+    var days = Math.floor((now - ui.backupAt) / DAY);
+    if (days >= 30) return "Last backup: " + days + " days ago. \u00b7 Derni\u00e8re sauvegarde : il y a " + days + " jours.";
+    var added = n - (ui.backupN || 0);
+    if (added >= 50) return "You added " + added + " words since your last backup. \u00b7 Vous avez ajout\u00e9 " + added + " mots depuis la derni\u00e8re sauvegarde.";
+    return null;
+  }
+  function updateReminder() {
+    var t = reminderText(), box = $("remind");
+    box.hidden = !t;
+    if (t) $("remindtext").textContent = t;
+  }
+  function showBackupInfo() {
+    var f = { day: "numeric", month: "short", year: "numeric" };
+    var en = ui.backupAt ? new Date(ui.backupAt).toLocaleDateString("en-GB", f) : "never";
+    var fr = ui.backupAt ? new Date(ui.backupAt).toLocaleDateString("fr-FR", f) : "jamais";
+    $("lastbackup").textContent = "Last backup: " + en + " \u00b7 Derni\u00e8re sauvegarde : " + fr;
+  }
+  function markBackup() {
+    ui.backupAt = Date.now(); ui.backupN = words.length;
+    saveUi(); updateReminder(); showBackupInfo();
+  }
+  $("remindnow").addEventListener("click", function () { openSettings(); var bc = $("backupcard"); if (bc.scrollIntoView) bc.scrollIntoView(); });
+  $("remindlater").addEventListener("click", function () { ui.snoozeUntil = Date.now() + 7 * DAY; saveUi(); updateReminder(); });
+
+  /* Backup */
+  function bmsg(t, err) { var m = $("bmsg"); m.textContent = t; m.className = "msg" + (err ? " err" : ""); }
+  $("copy").addEventListener("click", function () {
+    var text = words.slice().sort(function (a, b) { return a.en.localeCompare(b.en); })
+      .map(lineOf).join("\n");
+    $("box").value = text;
+    markBackup();
+    var done = function () { bmsg("List copied. · Liste copiée."); };
+    try {
+      navigator.clipboard.writeText(text).then(done, function () { $("adv").open = true; $("box").select(); bmsg("Select the text and copy it. · Sélectionnez et copiez le texte."); });
+    } catch (e) { $("adv").open = true; $("box").select(); bmsg("Select the text and copy it. · Sélectionnez et copiez le texte."); }
+  });
+  /* ---------- Reading lists: pasted text, a file made by Share, a spreadsheet (.xlsx) or a .csv ---------- */
+  var PROG_RE = /^level\s*(\d)\s*,\s*due\s*(\d{4})-(\d{2})-(\d{2})$/i;
+  function dueFromParts(y, m, d) { return new Date(+y, +m - 1, +d).getTime(); }
+  function parseBackupText(text) {
+    var recs = [];
+    String(text).replace(/^﻿/, "").split(/\r?\n/).forEach(function (ln) {
+      var i = ln.indexOf("=");
+      if (i < 1) return;
+      var parts = ln.slice(i + 1).split("|");
+      var en = norm(ln.slice(0, i)), fr = norm(parts[0]);
+      if (!en || !fr) return;
+      var rest = parts.slice(2), pm = null;
+      if (rest.length >= 2) { pm = PROG_RE.exec(norm(rest[rest.length - 1])); if (pm) rest = rest.slice(0, -1); }
+      var rec = { en: en, fr: fr, cats: parseCats(parts[1] || ""), note: norm(rest.join("/")) };
+      if (pm) { rec.box = Math.min(+pm[1], STEPS.length - 1); rec.due = dueFromParts(pm[2], pm[3], pm[4]); }
+      recs.push(rec);
+    });
+    return recs;
+  }
+  function importRecords(recs) {
+    var byEn = {}, n = 0;
+    words.forEach(function (w) { byEn[w.en.toLowerCase()] = w; });
+    recs.forEach(function (r) {
+      var d = byEn[r.en.toLowerCase()];
+      if (d) { d.fr = r.fr; d.cats = unionCats(d.cats, r.cats); if (r.note) d.note = r.note; }
+      else { d = { id: uid(), en: r.en, fr: r.fr, cats: r.cats, note: r.note, t: Date.now() }; words.push(d); byEn[r.en.toLowerCase()] = d; }
+      if (r.box !== undefined) { d.box = r.box; d.due = r.due; }
+      n++;
+    });
+    if (n) { save(); render(); addPicker.refresh(); }
+    return n;
+  }
+  function reportRestore(n) {
+    if (n) bmsg(n + (n === 1 ? " word restored." : " words restored.") + " \u00b7 " + n + (n === 1 ? " mot restaur\u00e9." : " mots restaur\u00e9s."));
+    else bmsg("Nothing found. Use one word per line: apple = pomme \u00b7 Rien trouv\u00e9. Une ligne par mot : apple = pomme", true);
+  }
+  function doRestore(text) { reportRestore(importRecords(parseBackupText(text))); }
+  $("restore").addEventListener("click", function () { doRestore($("box").value); });
+
+  // Spreadsheet columns are found by their titles (English/Anglais, French/Fran\u00e7ais, Categories/Th\u00e8me, Note/Remarque);
+  // without titles, the first four columns are used in that order.
+  function plain(t) { return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
+  var HEAD = { en: ["english", "anglais", "en"], fr: ["french", "francais", "fr", "traduction", "translation"],
+               cats: ["categories", "category", "categorie", "theme", "cat"], note: ["note", "notes", "remarque", "remarques", "comment"],
+               level: ["level", "niveau"], due: ["due", "echeance", "a revoir", "revision"] };
+  function recordsFromTable(rows) {
+    var map = null, start = 0;
+    for (var i = 0; i < Math.min(rows.length, 5) && !map; i++) {
+      var m = {};
+      (rows[i] || []).forEach(function (cell, j) {
+        var k = plain(cell || "");
+        Object.keys(HEAD).forEach(function (key) { if (HEAD[key].indexOf(k) > -1 && m[key] === undefined) m[key] = j; });
+      });
+      if (m.en !== undefined && m.fr !== undefined) { map = m; start = i + 1; }
+    }
+    if (!map) map = { en: 0, fr: 1, cats: 2, note: 3 };
+    var recs = [];
+    for (var r = start; r < rows.length; r++) {
+      var row = rows[r] || [];
+      var en = norm(String(row[map.en] == null ? "" : row[map.en])), fr = norm(String(row[map.fr] == null ? "" : row[map.fr]));
+      if (!en || !fr) continue;
+      var rec = { en: en, fr: fr,
+        cats: map.cats === undefined ? [] : parseCats(row[map.cats] == null ? "" : row[map.cats]),
+        note: map.note === undefined ? "" : norm(String(row[map.note] == null ? "" : row[map.note])) };
+      if (map.level !== undefined) {
+        var lv = norm(String(row[map.level] == null ? "" : row[map.level]));
+        if (/^\d$/.test(lv)) {
+          rec.box = Math.min(+lv, STEPS.length - 1);
+          var dv = map.due === undefined ? "" : norm(String(row[map.due] == null ? "" : row[map.due])), dm;
+          if ((dm = /^(\d{4})-(\d{2})-(\d{2})/.exec(dv))) rec.due = dueFromParts(dm[1], dm[2], dm[3]);
+          else if (/^\d{5}$/.test(dv)) rec.due = Date.UTC(1899, 11, 30) + (+dv) * 86400000 + new Date().getTimezoneOffset() * 60000;   // Excel date number
+        }
+      }
+      recs.push(rec);
+    }
+    return recs;
+  }
+  function parseCSV(text) {
+    text = text.replace(/^\uFEFF/, "");
+    var first = text.split(/\r?\n/)[0] || "", delim = ",";
+    [";", "\t"].forEach(function (d) { if (first.split(d).length > first.split(delim).length) delim = d; });
+    var rows = [], row = [], cur = "", q = false;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (q) { if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === delim) { row.push(cur); cur = ""; }
+      else if (ch === "\n") { row.push(cur); rows.push(row); row = []; cur = ""; }
+      else if (ch !== "\r") cur += ch;
+    }
+    if (cur !== "" || row.length) { row.push(cur); rows.push(row); }
+    return rows;
+  }
+
+  /* ---------- .zip / .xlsx plumbing (no libraries) ---------- */
+  var crcTable = null;
+  function crc32(u8) {
+    if (!crcTable) {
+      crcTable = new Uint32Array(256);
+      for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); crcTable[n] = c >>> 0; }
+    }
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < u8.length; i++) crc = crcTable[(crc ^ u8[i]) & 255] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function concatBytes(arrs) {
+    var n = 0; arrs.forEach(function (a) { n += a.length; });
+    var out = new Uint8Array(n), o = 0;
+    arrs.forEach(function (a) { out.set(a, o); o += a.length; });
+    return out;
+  }
+  function zipStore(files) {           // files: [{ name, data }], stored without compression
+    var enc = new TextEncoder(), parts = [], central = [], offset = 0;
+    files.forEach(function (f) {
+      var name = enc.encode(f.name), data = typeof f.data === "string" ? enc.encode(f.data) : f.data, crc = crc32(data);
+      var h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+      h.setUint16(10, 0, true); h.setUint16(12, 0x21, true); h.setUint32(14, crc, true);
+      h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, name.length, true); h.setUint16(28, 0, true);
+      parts.push(new Uint8Array(h.buffer), name, data);
+      var c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+      c.setUint16(12, 0, true); c.setUint16(14, 0x21, true); c.setUint32(16, crc, true);
+      c.setUint32(20, data.length, true); c.setUint32(24, data.length, true); c.setUint16(28, name.length, true);
+      c.setUint32(42, offset, true);
+      central.push(new Uint8Array(c.buffer), name);
+      offset += 30 + name.length + data.length;
+    });
+    var cdSize = 0; central.forEach(function (x) { cdSize += x.length; });
+    var end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+    return concatBytes(parts.concat(central, [new Uint8Array(end.buffer)]));
+  }
+  // Raw "deflate" decoder (what Excel uses inside .xlsx files), after zlib's reference decoder.
+  var LBASE = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
+  var LEXT = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+  var DBASE = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
+  var DEXT = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+  function inflateRaw(src) {
+    var pos = 0, bitbuf = 0, bitcnt = 0, out = [];
+    function bits(need) {
+      var val = bitbuf;
+      while (bitcnt < need) { if (pos >= src.length) throw new Error("eof"); val |= src[pos++] << bitcnt; bitcnt += 8; }
+      bitbuf = val >>> need; bitcnt -= need;
+      return val & ((1 << need) - 1);
+    }
+    function huff(lengths, n) {
+      var count = new Array(16).fill(0), offs = new Array(16).fill(0), symbol = new Array(n), i;
+      for (i = 0; i < n; i++) count[lengths[i]]++;
+      for (i = 1; i < 15; i++) offs[i + 1] = offs[i] + count[i];
+      for (i = 0; i < n; i++) if (lengths[i]) symbol[offs[lengths[i]]++] = i;
+      count[0] = 0;
+      return { count: count, symbol: symbol };
+    }
+    function decode(h) {
+      var code = 0, first = 0, index = 0;
+      for (var len = 1; len <= 15; len++) {
+        code |= bits(1);
+        var cnt = h.count[len];
+        if (code - cnt < first) return h.symbol[index + (code - first)];
+        index += cnt; first += cnt; first <<= 1; code <<= 1;
+      }
+      throw new Error("bad code");
+    }
+    function codes(lc, dc) {
+      for (;;) {
+        var sym = decode(lc);
+        if (sym < 256) out.push(sym);
+        else if (sym === 256) return;
+        else {
+          sym -= 257;
+          var len = LBASE[sym] + bits(LEXT[sym]), ds = decode(dc), dist = DBASE[ds] + bits(DEXT[ds]);
+          if (dist > out.length) throw new Error("bad distance");
+          for (var k = 0; k < len; k++) out.push(out[out.length - dist]);
+        }
+      }
+    }
+    var last;
+    do {
+      last = bits(1);
+      var type = bits(2), i;
+      if (type === 0) {
+        bitbuf = 0; bitcnt = 0;
+        var len = src[pos] | (src[pos + 1] << 8); pos += 4;
+        for (i = 0; i < len; i++) out.push(src[pos++]);
+      } else if (type === 1) {
+        var l = [];
+        for (i = 0; i < 144; i++) l.push(8);
+        for (; i < 256; i++) l.push(9);
+        for (; i < 280; i++) l.push(7);
+        for (; i < 288; i++) l.push(8);
+        var d = []; for (i = 0; i < 30; i++) d.push(5);
+        codes(huff(l, 288), huff(d, 30));
+      } else if (type === 2) {
+        var nlen = bits(5) + 257, ndist = bits(5) + 1, ncode = bits(4) + 4;
+        var order = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15], lengths = new Array(320).fill(0);
+        for (i = 0; i < ncode; i++) lengths[order[i]] = bits(3);
+        var lc = huff(lengths, 19), idx = 0;
+        lengths = new Array(320).fill(0);
+        while (idx < nlen + ndist) {
+          var sym = decode(lc);
+          if (sym < 16) lengths[idx++] = sym;
+          else {
+            var prev = 0, rep;
+            if (sym === 16) { prev = lengths[idx - 1]; rep = 3 + bits(2); }
+            else if (sym === 17) rep = 3 + bits(3);
+            else rep = 11 + bits(7);
+            while (rep--) lengths[idx++] = prev;
+          }
+        }
+        codes(huff(lengths.slice(0, nlen), nlen), huff(lengths.slice(nlen, nlen + ndist), ndist));
+      } else throw new Error("bad block");
+    } while (!last);
+    return Uint8Array.from(out);
+  }
+  function unzip(u8) {                 // -> { entryName: function () { return bytes; } }
+    var dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength), end = -1, i;
+    for (i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50) { end = i; break; }
+    if (end < 0) throw new Error("not a zip");
+    var count = dv.getUint16(end + 10, true), p = dv.getUint32(end + 16, true), files = {}, dec = new TextDecoder();
+    for (i = 0; i < count; i++) {
+      if (dv.getUint32(p, true) !== 0x02014b50) throw new Error("bad zip");
+      var method = dv.getUint16(p + 10, true), comp = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true),
+          el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+      var name = dec.decode(u8.subarray(p + 46, p + 46 + nl));
+      (function (method, comp, off, name) {
+        files[name] = function () {
+          var start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true), data = u8.subarray(start, start + comp);
+          if (method === 0) return data;
+          if (method === 8) return inflateRaw(data);
+          throw new Error("unsupported compression");
+        };
+      })(method, comp, off, name);
+      p += 46 + nl + el + cl;
+    }
+    return files;
+  }
+  function xlsxRecords(u8) {
+    var files = unzip(u8), dec = new TextDecoder(), parse = function (b) { return new DOMParser().parseFromString(dec.decode(b), "application/xml"); };
+    var shared = [];
+    if (files["xl/sharedStrings.xml"]) {
+      var sd = parse(files["xl/sharedStrings.xml"]()), si = sd.getElementsByTagNameNS("*", "si");
+      for (var i = 0; i < si.length; i++) {
+        var ts = si[i].getElementsByTagNameNS("*", "t"), str = "";
+        for (var j = 0; j < ts.length; j++) { if (ts[j].parentNode.localName === "rPh") continue; str += ts[j].textContent; }
+        shared.push(str);
+      }
+    }
+    var sheetName = files["xl/worksheets/sheet1.xml"] ? "xl/worksheets/sheet1.xml" :
+      Object.keys(files).filter(function (n) { return /^xl\/worksheets\/sheet\d+\.xml$/.test(n); }).sort()[0];
+    if (!sheetName) throw new Error("no sheet");
+    var doc = parse(files[sheetName]()), rowEls = doc.getElementsByTagNameNS("*", "row"), rows = [];
+    for (var r = 0; r < rowEls.length; r++) {
+      var cells = rowEls[r].getElementsByTagNameNS("*", "c"), row = [];
+      for (var c = 0; c < cells.length; c++) {
+        var cell = cells[c], ref = cell.getAttribute("r") || "", col = 0, m = /^[A-Z]+/.exec(ref);
+        if (m) for (var k = 0; k < m[0].length; k++) col = col * 26 + (m[0].charCodeAt(k) - 64);
+        col = m ? col - 1 : c;
+        var t = cell.getAttribute("t"), text = "";
+        if (t === "inlineStr") { var is = cell.getElementsByTagNameNS("*", "t"); for (var q = 0; q < is.length; q++) text += is[q].textContent; }
+        else { var v = cell.getElementsByTagNameNS("*", "v")[0]; text = v ? v.textContent : ""; if (t === "s") text = shared[parseInt(text, 10)] || ""; }
+        row[col] = text;
+      }
+      rows.push(row);
+    }
+    return recordsFromTable(rows);
+  }
+
+  /* ---------- Export to Excel ---------- */
+  var XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  function xmlEsc(t) {
+    return String(t).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function buildXlsx() {
+    var list = words.slice().sort(function (a, b) { return collator.compare(a.en, b.en); });
+    var prog = !!ui.withProgress, ncol = prog ? 6 : 4;
+    var rows = [prog ? ["English", "French", "Categories", "Note", "Level", "Due"] : ["English", "French", "Categories", "Note"]];
+    list.forEach(function (w) {
+      var row = [w.en, w.fr, (w.cats || []).join("; "), w.note || ""];
+      if (prog) row.push(w.box === undefined ? "" : String(w.box), w.box === undefined ? "" : dayKey(new Date(w.due || Date.now())));
+      rows.push(row);
+    });
+    var sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+      '<cols><col min="1" max="1" width="30" customWidth="1"/><col min="2" max="2" width="30" customWidth="1"/><col min="3" max="3" width="36" customWidth="1"/><col min="4" max="4" width="60" customWidth="1"/>' + (prog ? '<col min="5" max="5" width="10" customWidth="1"/><col min="6" max="6" width="14" customWidth="1"/>' : '') + '</cols><sheetData>';
+    rows.forEach(function (row, r) {
+      sheet += '<row r="' + (r + 1) + '">';
+      row.forEach(function (v, c) {
+        if (v === "") return;
+        sheet += '<c r="' + String.fromCharCode(65 + c) + (r + 1) + '" t="inlineStr"' + (r === 0 ? ' s="1"' : '') + '><is><t xml:space="preserve">' + xmlEsc(v) + '</t></is></c>';
+      });
+      sheet += '</row>';
+    });
+    sheet += '</sheetData><autoFilter ref="A1:' + String.fromCharCode(64 + ncol) + rows.length + '"/></worksheet>';
+    var head = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+    return zipStore([
+      { name: "[Content_Types].xml", data: head + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>' },
+      { name: "_rels/.rels", data: head + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+      { name: "xl/workbook.xml", data: head + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Words" sheetId="1" r:id="rId1"/></sheets></workbook>' },
+      { name: "xl/_rels/workbook.xml.rels", data: head + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
+      { name: "xl/styles.xml", data: head + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>' },
+      { name: "xl/worksheets/sheet1.xml", data: sheet }
+    ]);
+  }
+  function toBase64(u8) {
+    var str = "";
+    for (var i = 0; i < u8.length; i += 0x8000) str += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    return btoa(str);
+  }
+  // Android app: native share sheet. Browser: Web Share with a file, or a normal download.
+  function shareBytes(name, mime, bytes) {
+    if (typeof window.AndroidFile !== "undefined") { window.AndroidFile.shareFile(name, mime, toBase64(bytes)); return; }
+    var blob = new Blob([bytes], { type: mime }), file = typeof File === "function" ? new File([blob], name, { type: mime }) : null;
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file], title: name }).catch(function () {}); return; }
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+  }
+  $("exportxlsx").addEventListener("click", function () {
+    if (!words.length) { bmsg("Your list is empty. \u00b7 Votre liste est vide.", true); return; }
+    try {
+      shareBytes("mon-carnet-de-mots.xlsx", XLSX_MIME, buildXlsx());
+      markBackup();
+      bmsg("Excel file ready. \u00b7 Fichier Excel pr\u00eat.");
+    } catch (e) { bmsg("Could not create the file. \u00b7 Impossible de cr\u00e9er le fichier.", true); }
+  });
+
+  // Restore from a file: a text list from "Share my list", an Excel spreadsheet (.xlsx) or a .csv
+  var fileIn = $("restorefile");
+  $("restorefilebtn").addEventListener("click", function () { fileIn.value = ""; fileIn.click(); });
+  fileIn.addEventListener("change", function () {
+    var f = fileIn.files && fileIn.files[0];
+    if (!f) return;
+    if (f.size > 20 * 1024 * 1024) { bmsg("This file is too big. \u00b7 Ce fichier est trop volumineux.", true); return; }
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var u8 = new Uint8Array(r.result), recs;
+        if (u8[0] === 0x50 && u8[1] === 0x4B) recs = xlsxRecords(u8);                      // "PK": a spreadsheet
+        else {
+          var text = new TextDecoder("utf-8").decode(u8);
+          recs = parseBackupText(text);
+          if (!recs.length) recs = recordsFromTable(parseCSV(text));
+        }
+        reportRestore(importRecords(recs));
+      } catch (e) { bmsg("Could not read this file. \u00b7 Impossible de lire ce fichier.", true); }
+    };
+    r.onerror = function () { bmsg("Could not read this file. \u00b7 Impossible de lire ce fichier.", true); };
+    r.readAsArrayBuffer(f);
+  });
+
+  /* Quiz */
+  var qz = $('qz'), qState = null, qOpener = null;
+  var qSet = { cat: '', dir: 'enfr', mode: 'smart', len: '10' };
+  (function () {          // remember the last quiz choices
+    var q = ui.quiz || {};
+    if (typeof q.cat === 'string') qSet.cat = q.cat;
+    if (['enfr', 'fren', 'mixed', 'listen'].indexOf(q.dir) > -1) qSet.dir = q.dir;
+    if (['smart', 'all', 'weak'].indexOf(q.mode) > -1) qSet.mode = q.mode;
+    if (['5', '10', '20', 'all'].indexOf(q.len) > -1) qSet.len = q.len;
+  })();
+  function qSave() { ui.quiz = { cat: qSet.cat, dir: qSet.dir, mode: qSet.mode, len: qSet.len }; saveUi(); }
+  var STEPS = [0, 1, 3, 7, 14, 30];     // days before a word comes back, by level (level 0 = weak)
+
+  function isDue(w, now) { return w.box !== undefined && (!w.due || w.due <= now); }   // quizzed before, and scheduled for today or earlier
+  function qPool() {
+    return words.filter(function (w) {
+      return (!qSet.cat || hasCat(w, qSet.cat)) && (qSet.mode !== 'weak' || w.box === 0);
+    });
+  }
+  function weakCount() { return words.filter(function (w) { return w.box === 0; }).length; }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  // Smart review: weak words first, then words whose time has come (longest overdue first),
+  // then words never quizzed, and only then words that are not due yet (soonest first).
+  function qPick() {
+    var now = Date.now(), pool = qPool();
+    var n = qSet.len === 'all' ? pool.length : Math.min(parseInt(qSet.len, 10), pool.length);
+    var chosen;
+    if (qSet.mode === 'smart') {
+      var dueList = [], fresh = [], later = [];
+      pool.forEach(function (w) {
+        if (w.box === undefined) fresh.push(w);
+        else if (isDue(w, now)) dueList.push({ w: w, k: (w.box === 0 ? 1000 : 0) + Math.min((now - (w.due || now)) / DAY, 60) * 5 + Math.random() * 20 });
+        else later.push(w);
+      });
+      dueList.sort(function (a, b) { return b.k - a.k; });
+      later.sort(function (a, b) { return a.due - b.due; });
+      chosen = dueList.map(function (x) { return x.w; }).concat(shuffle(fresh), later).slice(0, n);
+    } else chosen = shuffle(pool.slice()).slice(0, n);
+    return shuffle(chosen);
+  }
+  function qDir() {
+    return qSet.dir === 'mixed' ? (Math.random() < 0.5 ? 'enfr' : 'fren') : qSet.dir;
+  }
+
+  function openQuiz() {
+    qOpener = document.activeElement;
+    qz.hidden = false;
+    document.body.style.overflow = 'hidden';
+    qSetup();
+  }
+  function closeQuiz() {
+    qz.hidden = true;
+    document.body.style.overflow = '';
+    qState = null;
+    try { speechSynthesis.cancel(); } catch (e) {}
+    if (qOpener && qOpener.focus) qOpener.focus();
+  }
+  // Full-screen panel with a title and a Close button (used by the quiz, settings and progress)
+  function shell(el, title, onClose) {
+    el.innerHTML = '';
+    var inner = mk('div', 'qz-inner'), top = mk('div', 'qz-top');
+    top.appendChild(mk('h2', '', title));
+    var x = mk('button', 'btn ghost small', 'Close · Fermer');
+    x.type = 'button';
+    x.addEventListener('click', onClose);
+    top.appendChild(x);
+    inner.appendChild(top);
+    el.appendChild(inner);
+    el.scrollTop = 0;
+    return inner;
+  }
+  function qShell(title) { return shell(qz, title, closeQuiz); }
+  function qField(label, options, cur, onChange) {
+    var f = mk('label', 'field'), s = mk('select');
+    f.appendChild(mk('span', '', label));
+    options.forEach(function (o) {
+      var op = mk('option', '', o[1]);
+      op.value = o[0];
+      s.appendChild(op);
+    });
+    s.value = cur;
+    if (s.value !== cur) s.value = options[0][0];
+    s.addEventListener('change', function () { onChange(s.value); });
+    f.appendChild(s);
+    return f;
+  }
+
+  function qSetup() {
+    qState = null;
+    if (qSet.cat && catList().indexOf(qSet.cat) < 0) qSet.cat = '';
+    if (qSet.mode === 'mix') qSet.mode = 'smart';
+    if (qSet.dir === 'listen' && !speechOK) qSet.dir = 'enfr';
+    var inner = qShell('Quiz');
+    var card = mk('div', 'card');
+    var info = mk('p', 'msg'), stat = mk('p', 'msg');
+    var start = mk('button', 'btn full', 'Start · Commencer');
+    start.type = 'button';
+
+    function upd() {
+      var pool = qPool(), n = pool.length, now = Date.now(), t;
+      if (!words.length) t = 'Add some words first. · Ajoutez d’abord des mots.';
+      else if (!n && qSet.mode === 'weak') t = 'No weak words here yet. Words you mark “Still learning” will appear here. · Pas encore de mots difficiles.';
+      else if (!n) t = 'No words in this category. · Aucun mot dans cette catégorie.';
+      else t = n + (n === 1 ? ' word available' : ' words available') + ' · ' + n + (n === 1 ? ' mot disponible' : ' mots disponibles');
+      info.textContent = t;
+      var due = 0, fresh = 0, weak = 0;
+      pool.forEach(function (w) { if (w.box === undefined) fresh++; else if (isDue(w, now)) due++; if (w.box === 0) weak++; });
+      stat.textContent = 'To review: ' + due + ', new: ' + fresh + ', weak: ' + weak + ' · À revoir : ' + due + ', nouveaux : ' + fresh + ', difficiles : ' + weak;
+      start.disabled = !n;
+    }
+
+    var catOpts = [['', 'All words · Tous les mots']].concat(catList().map(function (c) { return [c, catLabel(c)]; }));
+    card.appendChild(qField('Words from · Mots de', catOpts, qSet.cat, function (v) { qSet.cat = v; qSave(); upd(); }));
+    var dirs = [
+      ['enfr', 'English to French · Anglais vers français'],
+      ['fren', 'French to English · Français vers anglais'],
+      ['mixed', 'Mixed · Mélangé']
+    ];
+    if (speechOK) dirs.push(['listen', 'Listening: hear the English word · Écoute : entendre le mot anglais']);
+    card.appendChild(qField('Direction · Sens', dirs, qSet.dir, function (v) { qSet.dir = v; qSave(); }));
+    card.appendChild(qField('Which words · Quels mots', [
+      ['smart', 'Smart review: words due first · Révision intelligente : les mots à revoir d’abord'],
+      ['all', 'All words, random order · Tous les mots, dans le désordre'],
+      ['weak', 'Only my weak words · Seulement mes mots difficiles']
+    ], qSet.mode, function (v) { qSet.mode = v; qSave(); upd(); }));
+    card.appendChild(qField('How many · Combien', [
+      ['5', '5 words · 5 mots'],
+      ['10', '10 words · 10 mots'],
+      ['20', '20 words · 20 mots'],
+      ['all', 'All · Tous']
+    ], qSet.len, function (v) { qSet.len = v; qSave(); }));
+    card.appendChild(start);
+    card.appendChild(info);
+    card.appendChild(stat);
+    inner.appendChild(card);
+    start.addEventListener('click', function () {
+      var list = qPick();
+      if (list.length) qStart(list);
+    });
+    upd();
+  }
+
+  function qStart(list) {
+    qState = {
+      cards: list.map(function (w) { return { w: w, d: qDir() }; }),
+      i: 0, flipped: false, right: 0, missed: []
+    };
+    qCard();
+  }
+
+  function qCard() {
+    var s = qState, c = s.cards[s.i], w = c.w, listen = c.d === 'listen', en = c.d === 'enfr';
+    var inner = qShell('Quiz');
+    var bar = mk('div', 'qbar'), fill = mk('i');
+    fill.style.width = Math.round(s.i / s.cards.length * 100) + '%';
+    bar.appendChild(fill);
+    inner.appendChild(bar);
+    inner.appendChild(mk('p', 'count', 'Card ' + (s.i + 1) + ' of ' + s.cards.length + ' · Carte ' + (s.i + 1) + ' sur ' + s.cards.length));
+
+    // A plain container, not a <button>: the tool icons live inside it once the answer shows.
+    var card = mk('div', 'qcard');
+    if (!s.flipped) { card.setAttribute('role', 'button'); card.tabIndex = 0; }
+    if (listen) {
+      card.appendChild(mk('div', 'lang', 'Listening · Écoute'));
+      if (!s.flipped) {
+        var spk = mk('div', 'speak qspk'); spk.setAttribute('aria-hidden', 'true');
+        card.appendChild(spk);
+        card.appendChild(mk('div', 'hint', 'Listen, then tap the card to see the word · Écoutez, puis touchez la carte pour voir le mot'));
+      } else {
+        card.appendChild(mk('div', 'lang', 'English · Anglais'));
+        card.appendChild(mk('div', 'big en', w.en));
+        card.appendChild(mk('div', 'lang', 'French · Français'));
+        card.appendChild(mk('div', 'big fr', w.fr));
+      }
+    } else {
+      card.appendChild(mk('div', 'lang', en ? 'English · Anglais' : 'French · Français'));
+      card.appendChild(mk('div', 'big ' + (en ? 'en' : 'fr'), en ? w.en : w.fr));
+      if (s.flipped) {
+        card.appendChild(mk('div', 'lang', en ? 'French · Français' : 'English · Anglais'));
+        card.appendChild(mk('div', 'big ' + (en ? 'fr' : 'en'), en ? w.fr : w.en));
+      } else {
+        card.appendChild(mk('div', 'hint', 'Tap the card to see the answer · Touchez la carte pour voir la réponse'));
+      }
+    }
+    card.addEventListener('click', function () {
+      if (!s.flipped) { s.flipped = true; qCard(); }
+    });
+    card.addEventListener('keydown', function (e) {
+      if (e.target === card && !s.flipped && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); s.flipped = true; qCard(); }
+    });
+
+    // Inside the card, icons only: hear it, and (once the answer is showing) look it up or fix it.
+    // Taps on or around them never flip the card; the two big buttons below carry the quiz on.
+    var tools = mk('div', 'qtools');
+    tools.addEventListener('click', function (e) { e.stopPropagation(); });
+    if (speechOK && (listen || en || s.flipped)) {
+      tools.appendChild(iconBtn(ICON.speaker, listen && !s.flipped ? 'Hear it again \u00b7 R\u00e9\u00e9couter' : 'Hear the English word \u00b7 \u00c9couter', function () { speak(w.en); }));
+    }
+    if (s.flipped) {
+      var look = document.createElement('a');
+      look.className = 'iconbtn';
+      look.href = 'https://www.wordreference.com/enfr/' + encodeURIComponent(w.en);
+      look.target = '_blank'; look.rel = 'noopener noreferrer';
+      look.setAttribute('aria-label', 'Look up \u00b7 Chercher'); look.title = 'Look up \u00b7 Chercher';
+      look.innerHTML = ICON.look;
+      tools.appendChild(look);
+      tools.appendChild(iconBtn(ICON.edit, 'Edit \u00b7 Modifier', function () { openEditSheet(w, function () { qCard(); }); }));
+    }
+    if (tools.children.length) card.appendChild(tools);
+    inner.appendChild(card);
+
+    if (s.flipped) {
+      var row = mk('div', 'qans');
+      var no = mk('button', 'btn ghost', 'Still learning · A réviser');
+      var yes = mk('button', 'btn', 'I knew it · Je connais');
+      no.type = 'button'; yes.type = 'button';
+      no.addEventListener('click', function () { qAnswer(false); });
+      yes.addEventListener('click', function () { qAnswer(true); });
+      row.appendChild(no); row.appendChild(yes);
+      inner.appendChild(row);
+      yes.focus({ preventScroll: true });
+    } else {
+      card.focus({ preventScroll: true });
+      if (listen && speechOK) setTimeout(function () { if (qState === s && !s.flipped && s.cards[s.i] === c) speak(w.en); }, 250);
+    }
+  }
+
+  // A right answer moves the word up a level (it comes back after longer and longer breaks);
+  // a wrong answer sends it back to level 0 so it returns soon.
+  function qAnswer(ok) {
+    var s = qState, w = s.cards[s.i].w, now = Date.now();
+    if (ok) {
+      s.right++;
+      w.box = Math.min((w.box === undefined ? 0 : w.box) + 1, STEPS.length - 1);
+      w.due = now + STEPS[w.box] * DAY;
+    } else {
+      s.missed.push(w);
+      w.box = 0;
+      w.due = now;
+    }
+    save();
+    recordAnswer(ok);
+    s.i++;
+    s.flipped = false;
+    if (s.i >= s.cards.length) qResults(); else qCard();
+  }
+
+  function qResults() {
+    var s = qState, total = s.cards.length;
+    recordRound();
+    var inner = qShell('Results · Résultats');
+    inner.appendChild(mk('div', 'big-score', s.right + ' of ' + total + ' · ' + s.right + ' sur ' + total));
+    inner.appendChild(mk('p', 'sub', s.right === total
+      ? 'Perfect, well done! · Parfait, bravo !'
+      : 'The words you missed will come back soon. · Les mots ratés reviendront bientôt.'));
+    if (s.missed.length) {
+      inner.appendChild(mk('p', 'count', 'To review · À revoir'));
+      var ul = mk('ul', 'words');
+      s.missed.forEach(function (w) {
+        var li = mk('li', 'word'), d = mk('div');
+        d.appendChild(mk('div', 'en', w.en));
+        d.appendChild(mk('div', 'fr', w.fr));
+        li.appendChild(d);
+        ul.appendChild(li);
+      });
+      inner.appendChild(ul);
+    }
+    var stack = mk('div', 'qstack');
+    var first = null;
+    if (s.missed.length) {
+      var again = mk('button', 'btn full', 'Review the ones I missed · Revoir les mots ratés');
+      again.type = 'button';
+      again.addEventListener('click', function () { qStart(s.missed.slice()); });
+      stack.appendChild(again);
+      first = again;
+    }
+    var fresh = mk('button', 'btn ghost full', 'New round · Nouvelle série');
+    fresh.type = 'button';
+    fresh.addEventListener('click', qSetup);
+    var done = mk('button', 'btn ghost full', 'Back to my words · Retour à mes mots');
+    done.type = 'button';
+    done.addEventListener('click', closeQuiz);
+    stack.appendChild(fresh);
+    stack.appendChild(done);
+    inner.appendChild(stack);
+    (first || fresh).focus({ preventScroll: true });
+  }
+
+  $('qstart').addEventListener('click', openQuiz);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !qz.hidden) closeQuiz();
+  });
+
+  /* Edit-word pop-up (used from the quiz card) */
+  var editSheet = $('editsheet');
+  function closeEdit() { editSheet.hidden = true; }
+  function openEditSheet(w, done) {
+    editSheet.innerHTML = '';
+    var box = mk('div', 'sheet-box');
+    box.appendChild(mk('h3', '', 'Edit word · Modifier le mot'));
+    function field(label, el) {
+      var f = mk('div', 'field'); f.appendChild(mk('span', '', label)); f.appendChild(el); box.appendChild(f);
+    }
+    var e1 = mk('input'); e1.type = 'text'; e1.value = w.en; e1.className = 'en-input';
+    var e2 = mk('input'); e2.type = 'text'; e2.value = w.fr; e2.className = 'fr-input';
+    var cf = catField(w.cats || []);
+    var e4 = mk('textarea'); e4.rows = 2; e4.value = w.note || ''; e4.maxLength = 400;
+    field('English word · Mot en anglais', e1);
+    field('French translation · Traduction en français', e2);
+    field('Categories · Catégories', cf.el);
+    field('Note · Remarque', e4);
+    var bar = mk('div', 'toolrow');
+    var sv = mk('button', 'btn', 'Save · Enregistrer'); sv.type = 'button';
+    var cn = mk('button', 'btn ghost', 'Cancel · Annuler'); cn.type = 'button';
+    sv.addEventListener('click', function () {
+      var en = norm(e1.value), fr = norm(e2.value);
+      if (!en || !fr) { (en ? e2 : e1).focus(); return; }
+      w.en = en; w.fr = fr; w.cats = cf.get(); w.note = norm(e4.value);
+      save(); render(); closeEdit();
+      if (done) done();
+    });
+    cn.addEventListener('click', closeEdit);
+    bar.appendChild(sv); bar.appendChild(cn);
+    box.appendChild(bar);
+    editSheet.appendChild(box);
+    editSheet.hidden = false;
+    e1.focus({ preventScroll: true });
+  }
+  editSheet.addEventListener('click', function (e) { if (e.target === editSheet) closeEdit(); });
+  // Escape closes the top-most pop-up first
+  window.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!sheet.hidden) { e.stopImmediatePropagation(); closeSheet(); }
+    else if (!editSheet.hidden) { e.stopImmediatePropagation(); closeEdit(); }
+  }, true);
+
+  /* Progress: quiz history is kept on the phone, separately from the words */
+  var STATKEY = 'english-words-stats-v1', stats = { days: {}, rounds: 0 };
+  try {
+    var sraw = localStorage.getItem(STATKEY);
+    if (sraw) { stats = JSON.parse(sraw); if (!stats.days) stats.days = {}; if (!stats.rounds) stats.rounds = 0; }
+  } catch (e) {}
+  function saveStats() { try { localStorage.setItem(STATKEY, JSON.stringify(stats)); } catch (e) {} }
+  function dayKey(d) { var p = function (n) { return (n < 10 ? '0' : '') + n; }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+  function recordAnswer(ok) {
+    var k = dayKey(new Date()), d = stats.days[k] || (stats.days[k] = { n: 0, c: 0 });
+    d.n++; if (ok) d.c++;
+    var keys = Object.keys(stats.days);
+    if (keys.length > 400) keys.sort().slice(0, keys.length - 400).forEach(function (x) { delete stats.days[x]; });
+    saveStats();
+  }
+  function recordRound() { stats.rounds = (stats.rounds || 0) + 1; saveStats(); }
+  function streakDays() {
+    var d = new Date(); d.setHours(12, 0, 0, 0);
+    if (!(stats.days[dayKey(d)] || {}).n) d.setDate(d.getDate() - 1);
+    var n = 0;
+    while ((stats.days[dayKey(d)] || {}).n) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  var prog = $('progress'), progOpener = null;
+  function closeProgress() {
+    prog.hidden = true;
+    document.body.style.overflow = '';
+    if (progOpener && progOpener.focus) progOpener.focus();
+  }
+  function openProgress() {
+    progOpener = document.activeElement;
+    prog.hidden = false;
+    document.body.style.overflow = 'hidden';
+    var inner = shell(prog, 'My progress · Mes progrès', closeProgress);
+    var now = Date.now(), total = words.length;
+    var cnt = { fresh: 0, weak: 0, learn: 0, done: 0 }, due = 0;
+    words.forEach(function (w) {
+      if (w.box === undefined) cnt.fresh++; else if (w.box === 0) cnt.weak++; else if (w.box < 4) cnt.learn++; else cnt.done++;
+      if (isDue(w, now)) due++;
+    });
+    function prow(label, value) {
+      var r = mk('div', 'prow'); r.appendChild(mk('span', '', label)); r.appendChild(mk('b', '', String(value))); return r;
+    }
+    // 1. words by level
+    var c1 = mk('div', 'card');
+    c1.appendChild(mk('h3', 'sethead', 'Your words · Vos mots'));
+    c1.appendChild(mk('div', 'big-score', String(total)));
+    var stack = mk('div', 'pstack');
+    [['fresh', 'var(--rule)'], ['weak', 'var(--danger)'], ['learn', 'var(--accent)'], ['done', 'var(--ok)']].forEach(function (x) {
+      if (total && cnt[x[0]]) { var i = mk('i'); i.style.width = (cnt[x[0]] / total * 100) + '%'; i.style.background = x[1]; stack.appendChild(i); }
+    });
+    c1.appendChild(stack);
+    [['fresh', 'var(--rule)', 'New, not quizzed yet · Nouveaux, pas encore testés'],
+     ['weak', 'var(--danger)', 'Weak · Difficiles'],
+     ['learn', 'var(--accent)', 'Learning · En cours d’apprentissage'],
+     ['done', 'var(--ok)', 'Well known · Bien connus']].forEach(function (x) {
+      var r = mk('div', 'prow'), l = mk('span');
+      var dot = mk('span', 'pdot'); dot.style.background = x[1]; l.appendChild(dot); l.appendChild(mk('span', '', x[2]));
+      r.appendChild(l); r.appendChild(mk('b', '', String(cnt[x[0]])));
+      c1.appendChild(r);
+    });
+    inner.appendChild(c1);
+    // 2. activity
+    var tot = 0, right = 0;
+    Object.keys(stats.days).forEach(function (k) { tot += stats.days[k].n; right += stats.days[k].c; });
+    var today = (stats.days[dayKey(new Date())] || { n: 0 }).n;
+    var c2 = mk('div', 'card');
+    c2.appendChild(mk('h3', 'sethead', 'Practice · Entraînement'));
+    c2.appendChild(prow('Ready to review now · À revoir maintenant', due));
+    c2.appendChild(prow('Day streak · Jours d’affilée', streakDays()));
+    c2.appendChild(prow('Cards answered today · Cartes répondues aujourd’hui', today));
+    c2.appendChild(prow('Cards answered in total · Cartes répondues au total', tot));
+    c2.appendChild(prow('Quizzes finished · Quiz terminés', stats.rounds || 0));
+    c2.appendChild(prow('Right answers · Bonnes réponses', tot ? Math.round(right / tot * 100) + '%' : '–'));
+    inner.appendChild(c2);
+    // 3. last 14 days
+    var c3 = mk('div', 'card');
+    c3.appendChild(mk('h3', 'sethead', 'Last 14 days · 14 derniers jours'));
+    var bars = mk('div', 'pbars'), vals = [], d = new Date(); d.setHours(12, 0, 0, 0);
+    d.setDate(d.getDate() - 13);
+    for (var i = 0; i < 14; i++) { vals.push({ n: (stats.days[dayKey(d)] || { n: 0 }).n, day: d.getDate(), today: i === 13 }); d.setDate(d.getDate() + 1); }
+    var max = Math.max.apply(null, vals.map(function (v) { return v.n; }).concat([1]));
+    vals.forEach(function (v) {
+      var col = mk('div', v.today ? 'today' : '');
+      col.title = v.n + ' · ' + v.day;
+      var bar = mk('i'); bar.style.height = (v.n ? Math.max(4, Math.round(v.n / max * 70)) : 2) + 'px';
+      col.appendChild(bar); col.appendChild(mk('span', '', String(v.day)));
+      bars.appendChild(col);
+    });
+    c3.appendChild(bars);
+    inner.appendChild(c3);
+    var go = mk('button', 'btn full', 'Start a quiz · Commencer un quiz'); go.type = 'button';
+    go.addEventListener('click', function () { closeProgress(); openQuiz(); });
+    inner.appendChild(go);
+  }
+  $('progressbtn').addEventListener('click', openProgress);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !prog.hidden) closeProgress(); });
+
+  $('share').addEventListener('click', function () {
+    if (!words.length) { bmsg('Your list is empty. · Votre liste est vide.', true); return; }
+    var text = words.slice().sort(function (a, b) { return a.en.localeCompare(b.en); })
+      .map(lineOf).join('\n');
+    // Inside the Android app: native share sheet. In a browser: Web Share, or plain copy.
+    if (typeof window.AndroidShare !== 'undefined') { try { window.AndroidShare.share(text); } catch (e) {} markBackup(); return; }
+    if (navigator.share) { navigator.share({ title: 'Mon Carnet de Mots Anglais', text: text }).catch(function () {}); markBackup(); return; }
+    $('copy').click();
+  });
+
+  /* Settings panel (cogwheel at the top right) */
+  var setPanel = $('settings'), setOpener = null;
+  function openSettings() {
+    setOpener = document.activeElement;
+    setPanel.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setPanel.scrollTop = 0;
+    $('settingsclose').focus({ preventScroll: true });
+  }
+  function closeSettings() {
+    setPanel.hidden = true;
+    document.body.style.overflow = '';
+    if (setOpener && setOpener.focus) setOpener.focus();
+  }
+  $('settingsbtn').addEventListener('click', openSettings);
+  $('settingsclose').addEventListener('click', closeSettings);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !setPanel.hidden) closeSettings(); });
+
+
+  /* Reset options (bottom of Settings) */
+  var confirmSheet = $('confirmsheet');
+  function closeConfirm() { confirmSheet.hidden = true; }
+  // Generic confirm pop-up. opts: {title, lines:[{t, warn}], yes, yesDanger, extra:{label, fn}, onYes}
+  function askConfirm(opts) {
+    confirmSheet.innerHTML = '';
+    var box = mk('div', 'sheet-box');
+    box.appendChild(mk('h3', '', opts.title));
+    (opts.lines || []).forEach(function (l) { box.appendChild(mk('p', 'confirm-text' + (l.warn ? ' warn' : ''), l.t)); });
+    var bar = mk('div', 'toolrow');
+    var no = mk('button', 'btn', 'Cancel · Annuler'); no.type = 'button';
+    var yes = mk('button', 'btn ' + (opts.yesDanger ? 'dangerfill' : 'ghost'), opts.yes); yes.type = 'button';
+    no.addEventListener('click', closeConfirm);
+    yes.addEventListener('click', function () { closeConfirm(); opts.onYes(); });
+    if (opts.extra) {
+      var ex = mk('button', 'btn ghost', opts.extra.label); ex.type = 'button';
+      ex.addEventListener('click', opts.extra.fn);
+      bar.appendChild(ex);
+    }
+    bar.appendChild(no); bar.appendChild(yes);
+    box.appendChild(bar);
+    confirmSheet.appendChild(box);
+    confirmSheet.hidden = false;
+    no.focus({ preventScroll: true });
+  }
+  confirmSheet.addEventListener('click', function (e) { if (e.target === confirmSheet) closeConfirm(); });
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !confirmSheet.hidden) { e.stopImmediatePropagation(); closeConfirm(); }
+  }, true);
+  function rmsg(t, err) { var m = $('resetmsg'); m.textContent = t; m.className = 'msg' + (err ? ' err' : ''); }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  $('resetstats').addEventListener('click', function () {
+    rmsg('');
+    askConfirm({
+      title: 'Reset your statistics? · Réinitialiser vos statistiques ?',
+      lines: [{ t: 'Your progress charts and your streak will start again from zero. Your words and their levels are kept. · Vos graphiques et votre série repartent de zéro. Vos mots et leurs niveaux sont conservés.' }],
+      yes: 'Reset · Réinitialiser',
+      onYes: function () {
+        stats = { days: {}, rounds: 0 }; saveStats();
+        rmsg('Statistics reset. · Statistiques réinitialisées.');
+      }
+    });
+  });
+
+  $('resetweak').addEventListener('click', function () {
+    rmsg('');
+    var weak = words.filter(function (w) { return w.box === 0; });
+    if (!weak.length) { rmsg('No weak words right now. · Aucun mot difficile pour le moment.'); return; }
+    var n = weak.length;
+    askConfirm({
+      title: 'Reset ' + plural(n, 'weak word', 'weak words') + '? · Réinitialiser ' + plural(n, 'mot difficile', 'mots difficiles') + ' ?',
+      lines: [{ t: 'They go back to “new”, as if you had never practised them. Your words are kept. · Ils redeviennent « nouveaux », comme si vous ne les aviez jamais travaillés. Vos mots sont conservés.' }],
+      yes: 'Reset · Réinitialiser',
+      onYes: function () {
+        weak.forEach(function (w) { delete w.box; delete w.due; });
+        save(); render();
+        rmsg(plural(n, 'word reset.', 'words reset.') + ' · ' + plural(n, 'mot réinitialisé.', 'mots réinitialisés.'));
+      }
+    });
+  });
+
+  function deleteAllWords() {
+    words = []; save(); render();
+    rmsg('All words deleted. · Tous les mots ont été supprimés.');
+  }
+  $('resetall').addEventListener('click', function () {
+    rmsg('');
+    var n = words.length;
+    if (!n) { rmsg('Your list is already empty. · Votre liste est déjà vide.'); return; }
+    function step2() {
+      var lines = [{ t: 'This cannot be undone. · Cette action est irréversible.', warn: true }];
+      var saved = ui.backupAt && ui.backupN === words.length;
+      lines.push({ t: saved
+        ? 'Your list is backed up. · Votre liste est sauvegardée.'
+        : (ui.backupAt
+          ? 'Your list has changed since your last backup. · Votre liste a changé depuis la dernière sauvegarde.'
+          : 'You have never made a backup. · Vous n’avez jamais fait de sauvegarde.'), warn: !saved });
+      askConfirm({
+        title: 'Really delete ' + plural(n, 'word', 'words') + '? · Vraiment supprimer ' + plural(n, 'mot', 'mots') + ' ?',
+        lines: lines,
+        yes: 'Delete everything · Tout supprimer', yesDanger: true,
+        extra: { label: 'Back up first · Sauvegarder d’abord', fn: function () { closeConfirm(); $('exportxlsx').click(); } },
+        onYes: deleteAllWords
+      });
+    }
+    askConfirm({
+      title: 'Delete all ' + plural(n, 'word', 'words') + '? · Supprimer ' + plural(n, 'mot', 'mots') + ' ?',
+      lines: [{ t: 'Your whole list will be emptied. · Toute votre liste sera vidée.' }],
+      yes: 'Continue · Continuer', yesDanger: true,
+      onYes: step2
+    });
+  });
+
+  /* Events */
+  $("add").addEventListener("click", function () { addWord(false); });
+  $("dupreplace").addEventListener("click", function () { addWord(true); });
+  $("dupcancel").addEventListener("click", function () { dupAct.hidden = true; dupHint = false; setMsg(""); enEl.focus(); });
+  var dupTimer = 0;
+  enEl.addEventListener("input", function () {
+    clearTimeout(dupTimer);
+    dupTimer = setTimeout(function () {
+      var v = norm(enEl.value), d = v ? findDup(v) : null;
+      if (d) { setWarn(dupMsg(d)); dupHint = true; dupAct.hidden = true; }
+      else if (dupHint) clearDup();
+    }, 150);
+  });
+  [enEl, frEl].forEach(function (el) {
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); if (el === enEl && !frEl.value) frEl.focus(); else addWord(false); }
+    });
+  });
+  var searchTimer = 0;
+  $("search").addEventListener("input", function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () { limit = PAGE; render(); }, 180);
+  });
+  $("sort").addEventListener("change", function () { limit = PAGE; render(); });
+
+  load();
+  var addPicker = catField([]);
+  $("catwrap").appendChild(addPicker.el);
+  render();
+
+  /* Add-word box: hidden by default, opened with the top button */
+  var addBtn = $('addtoggle'), addCard = $('addcard');
+  function setAddOpen(open, focus) {
+    addCard.hidden = !open;
+    addBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open && focus) enEl.focus();
+  }
+  addBtn.addEventListener('click', function () { setAddOpen(addCard.hidden, true); });
+  setAddOpen(words.length === 0, false);   // a brand-new list starts with the box open
+
+  /* Text size, cover mode, slow speech and the word of the day (Settings) */
+  var SIZE_PCT = { sm: '88%', md: '100%', lg: '118%' };
+  var sizeBtns = [].slice.call(document.querySelectorAll('#sizeseg button'));
+  function showSize() {
+    document.documentElement.style.fontSize = SIZE_PCT[ui.textSize];
+    sizeBtns.forEach(function (b) { b.setAttribute('aria-checked', b.getAttribute('data-size') === ui.textSize ? 'true' : 'false'); });
+  }
+  sizeBtns.forEach(function (b) {
+    b.addEventListener('click', function () { ui.textSize = b.getAttribute('data-size'); saveUi(); showSize(); });
+  });
+  var optCover = $('optcover'), optSlow = $('optslow'), optWotd = $('optwotd');
+  optCover.checked = ui.cover; optSlow.checked = ui.slow; optWotd.checked = ui.showWotd !== false;
+  function showCover() { listEl.classList.toggle('cover', ui.cover); }
+  optCover.addEventListener('change', function () { ui.cover = optCover.checked; saveUi(); showCover(); wotdRevealed = false; renderWotd(); });
+  optSlow.addEventListener('change', function () { ui.slow = optSlow.checked; saveUi(); if (ui.slow) speak('Slowly'); });
+  optWotd.addEventListener('change', function () { ui.showWotd = optWotd.checked; if (ui.showWotd) ui.wotdHide = ''; saveUi(); renderWotd(); });
+
+  // One word a day, kept for the whole day: a weak word if there is one, else a new word, else any word.
+  var wotdEl = $('wotd'), wotdRevealed = false;
+  function todayKey() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function pickWotd() {
+    if (!words.length) return null;
+    var day = todayKey(), w = ui.wotdDay === day ? byId(ui.wotdId) : null;
+    if (w) return w;
+    var weak = words.filter(function (x) { return x.box === 0; }), fresh = words.filter(function (x) { return x.box === undefined; });
+    var pool = weak.length ? weak : (fresh.length ? fresh : words);
+    w = pool[Math.floor(Math.random() * pool.length)];
+    ui.wotdDay = day; ui.wotdId = w.id; saveUi();
+    return w;
+  }
+  function renderWotd() {
+    var w = (ui.showWotd !== false && ui.wotdHide !== todayKey()) ? pickWotd() : null;
+    wotdEl.innerHTML = '';
+    if (!w) { wotdEl.hidden = true; return; }
+    wotdEl.hidden = false;
+    wotdEl.classList.toggle('cover', ui.cover);
+    wotdEl.appendChild(mk('div', 'wlabel', 'Word of the day · Mot du jour'));
+    var main = mk('div', 'wmain');
+    main.appendChild(mk('div', 'wen en', w.en));
+    var fr = mk('div', 'wfr fr' + (wotdRevealed ? ' shown' : ''), w.fr);
+    if (ui.cover && !wotdRevealed) {
+      fr.setAttribute('role', 'button'); fr.tabIndex = 0;
+      var reveal = function () { wotdRevealed = true; renderWotd(); };
+      fr.addEventListener('click', reveal);
+      fr.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reveal(); } });
+    }
+    main.appendChild(fr);
+    wotdEl.appendChild(main);
+    var btns = mk('div', 'wbtns');
+    if (speechOK) btns.appendChild(iconBtn(ICON.speaker, 'Hear the English word · Écouter', function () { speak(w.en); }));
+    btns.appendChild(iconBtn(ICON.close, 'Hide for today · Masquer pour aujourd’hui', function () { ui.wotdHide = todayKey(); saveUi(); renderWotd(); }));
+    wotdEl.appendChild(btns);
+  }
+  showSize(); showCover(); renderWotd();
+
+  // Called by the Android app when a long-press shortcut on the icon is used.
+  window.appShortcut = function (which) {
+    try {
+      if (!setPanel.hidden) closeSettings();
+      if (!prog.hidden) closeProgress();
+      if (which === 'quiz') { if (qz.hidden) openQuiz(); }
+      else if (which === 'add') { if (!qz.hidden) closeQuiz(); window.scrollTo(0, 0); setAddOpen(true, true); }
+    } catch (e) {}
+  };
+
+  /* Interface language: English only, French only, or both */
+  var origText = new WeakMap();
+  var uiBusy = false, mo = null;
+
+  // Interface strings are written "English · French"; the switch keeps one half (or both).
+  function partEn(t) { var i = t.indexOf(' \u00b7 '); return i < 0 ? t : t.slice(0, i); }
+  function partFr(t) { var i = t.indexOf(' \u00b7 '); return i < 0 ? t : t.slice(i + 3); }
+  function pickLang(t) { return lang === 'fr' ? partFr(t) : (lang === 'en' ? partEn(t) : t); }
+  function isOrig(cur, o) { return cur === o || cur === partEn(o) || cur === partFr(o); }
+  function observeUi() {
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['placeholder'] });
+  }
+  function applyLang() {
+    if (uiBusy) return;
+    uiBusy = true;
+    if (mo) mo.disconnect();
+    try {
+      var tw = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+        acceptNode: function (n) {
+          if (n.nodeType === 1) {
+            var cl = n.classList;
+            return (cl.contains("en") || cl.contains("fr") || cl.contains("cat") || cl.contains("note") || cl.contains("big") || cl.contains("tag")) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      var nodes = [], n;
+      while ((n = tw.nextNode())) nodes.push(n);
+      nodes.forEach(function (t) {
+        var p = t.parentElement;
+        // Leave vocabulary words, the language switch itself, and code alone.
+        if (!p || p.closest('.keep-bi, .en, .fr, .big, .note, .tag, script, style, textarea')) return;
+        var cur = t.nodeValue, o = origText.get(t);
+        if (o === undefined || !isOrig(cur, o)) { o = cur; origText.set(t, o); }
+        var want = pickLang(o);
+        if (cur !== want) t.nodeValue = want;
+      });
+      document.querySelectorAll('[placeholder]').forEach(function (el) {
+        if (el.closest('.keep-bi')) return;
+        var cur = el.getAttribute('placeholder'), o = el.getAttribute('data-ph');
+        if (o === null || !isOrig(cur, o)) { o = cur; el.setAttribute('data-ph', o); }
+        var want = pickLang(o);
+        if (cur !== want) el.setAttribute('placeholder', want);
+      });
+    } finally {
+      uiBusy = false;
+      if (mo) observeUi();
+    }
+  }
+  var themeBtns = [].slice.call(document.querySelectorAll('#themeseg button'));
+  // Tells the Android app which colour the screen edges (status/navigation bars) should match.
+  function syncBars() {
+    var bg = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim();
+    var m = /^#([0-9a-f]{6})$/i.exec(bg);
+    if (!m) return;
+    var n = parseInt(m[1], 16), lum = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+    try { if (window.AndroidTheme) window.AndroidTheme.setBackground(bg, lum > 0.5); } catch (e) {}
+  }
+  function showTheme() {
+    if (ui.theme === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', ui.theme);
+    themeBtns.forEach(function (b) { b.setAttribute('aria-checked', b.getAttribute('data-theme') === ui.theme ? 'true' : 'false'); });
+    syncBars();
+  }
+  themeBtns.forEach(function (b) {
+    b.addEventListener('click', function () { ui.theme = b.getAttribute('data-theme'); saveUi(); showTheme(); });
+  });
+  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncBars); } catch (e) {}
+  showTheme();
+  showBackupInfo();
+  updateReminder();
+  var segBtns = [].slice.call(document.querySelectorAll('#langseg button'));
+  function showLang() {
+    document.body.setAttribute('data-lang', lang);
+    document.documentElement.lang = lang === 'fr' ? 'fr' : 'en';
+    segBtns.forEach(function (b) { b.setAttribute('aria-checked', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
+  }
+  mo = new MutationObserver(function () { applyLang(); });
+  showLang();
+  applyLang();
+  segBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      lang = b.getAttribute('data-lang');
+      saveUi();
+      showLang();
+      addPicker.refresh();
+      render();          // category names in the panel follow the language
+      applyLang();
+    });
+  });
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>
